@@ -76,7 +76,6 @@ idna==2.10
 importlib-metadata==4.8.2
 ipykernel==6.5.1
 ipython==7.30.0
-
 ipython-genutils==0.2.0
 ipywidgets==7.6.5
 iso8601==0.1.16
