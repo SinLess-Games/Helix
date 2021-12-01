@@ -1,0 +1,97 @@
+##################################################################################################
+##################################################################################################
+###  _                 ______   _______  _______  _        _______ _________ _______  _______  ###
+### | \    /\|\     /|(  ___ \ (  ____ \(  ____ )( (    /|(  ____ \\__   __/(  ____ \(  ____ \ ###
+### |  \  / /| )   ( || (   ) )| (    \/| (    )||  \  ( || (    \/   ) (   | (    \/| (    \/ ###
+### |  (_/ / | |   | || (__/ / | (__    | (____)||   \ | || (__       | |   | (__    | (_____  ###
+### |   _ (  | |   | ||  __ (  |  __)   |     __)| (\ \) ||  __)      | |   |  __)   (_____  ) ###
+### |  ( \ \ | |   | || (  \ \ | (      | (\ (   | | \   || (         | |   | (            ) | ###
+### |  /  \ \| (___) || )___) )| (____/\| ) \ \__| )  \  || (____/\   | |   | (____/\/\____) | ###
+### |_/    \/(_______)|______/ (_______/|/   \__/|/    )_)(_______/   )_(   (_______/\_______) ###
+###                                                                                            ###
+##################################################################################################
+##################################################################################################
+
+The intial plan is to start with 2 server nodes, 1 agents and 1 master
+                    
+                              ############################
+                              #  Kubernetes distribution #
+                              ############################
+-- K3s
+
+
+
+                              ##############################
+                              ####     Requirements     ####
+                              ##############################
+
+-- If you are using Raspbian Buster, follow these steps to switch to legacy iptables
+-- If you are using Alpine Linux, follow these steps for additional setup.
+-- If you are using (Red Hat/CentOS) Enterprise Linux, follow these steps for additional setup.
+
+-- RAM: 512MB Minimum (we recommend at least 1GB)
+-- CPU: 1 Minimum
+
+-- The K3s server needs port 6443 to be accessible by all nodes.
+The nodes need to be able to reach other nodes over UDP port 8472 when Flannel VXLAN is used. The node should not listen on any other port.
+ K3s uses reverse tunneling such that the nodes make outbound connections to the server and all kubelet traffic runs through that tunnel. 
+ However, if you do not use Flannel and provide your own custom CNI, then port 8472 is not needed by K3s.
+
+If you wish to utilize the metrics server, you will need to open port 10250 on each node.
+
+If you plan on achieving high availability with embedded etcd, server nodes must be accessible to each other on ports 2379 and 2380.
+
+                    ##################################################################################################
+                    ##  Protocol  |   Port   |           Source           |                Description              ##
+                    ## -----------|----------|----------------------------|-----------------------------------------##
+                    ##     TCP    |   6443   | K3s agent nodes            | Kubernetes API Server                   ## 
+                    ##     UDP    |   8472   | K3s server and agent nodes | Required only for Flannel VXLAN         ##
+                    ##     TCP    |   10250  | K3s server and agent nodes | Kubelet metrics                         ##
+                    ##     TCP    | 2379-2380| K3s server nodes           | Required only for HA with embedded etcd ##
+                    ##################################################################################################
+
+-- MySQL Server
+    K3s supports different databases including MySQL, PostgreSQL, MariaDB, and etcd, the following is a sizing guide for the database resources you need to run large clusters:
+
+                    #####################################################
+                    ##  Deployment Size  |   Nodes   |  VCPUs  |  RAM  ##
+                    ##-------------------|_----------|---------|-------##
+                    ##     Small         | Up to 10  |    1    |  2GB  ## 
+                    ##     Medium        | Up to 100 |    2    |  8GB  ##
+                    ##     Large         | Up to 250 |    4    |  16GB ##
+                    ##     X-Large       | Up to 500 |    8    |  32GB ##
+                    #####################################################
+
+The following are the minimum CPU and memory requirements for nodes in a high-availability K3s server:
+
+                    #####################################################
+                    ##  Deployment Size  |   Nodes   |  VCPUs  |  RAM  ##
+                    ##-------------------|_----------|---------|-------##
+                    ##     Small         | Up to 10  |    2    |  4GB  ## 
+                    ##     Medium        | Up to 100 |    4    |  8GB  ##
+                    ##     Large         | Up to 250 |    8    |  16GB ##
+                    ##     X-Large       | Up to 500 |    16   |  32GB ##
+                    #####################################################
+
+You should consider increasing the subnet size for the cluster CIDR so that you don’t run out of IPs for the pods.
+ You can do that by passing the --cluster-cidr option to K3s server upon starting.
+
+ https://rancher.com/docs/k3s/latest/en/installation/ha/
+
+##########################################################################################
+## curl -sfL https://get.k3s.io | sh -s - server \                                      ##
+##   --datastore-endpoint="mysql://username:password@tcp(hostname:3306)/database-name"  ##
+##########################################################################################
+
+Agent nodes need a URL to register against. This can be the IP or hostname of any of the server nodes, but in many cases those may change over time. 
+For example, if you are running your cluster in a cloud that supports scaling groups, you may scale the server node group up and down over time, 
+causing nodes to be created and destroyed and thus having different IPs from the initial set of server nodes. Therefore, you should have a stable endpoint 
+in front of the server nodes that will not change over time. This endpoint can be set up using any number approaches, such as:
+
+    - A layer-4 (TCP) load balancer
+    - Round-robin DNS
+    - Virtual or elastic IP addresses
+
+This endpoint can also be used for accessing the Kubernetes API. So you can, for example, modify your kubeconfig file to point to it instead of a specific node. 
+To avoid certificate errors in such a configuration, you should install the server with the --tls-san YOUR_IP_OR_HOSTNAME_HERE option. This option adds an additional 
+hostname or IP as a Subject Alternative Name in the TLS cert, and it can be specified multiple times if you would like to access via both the IP and the hostname.

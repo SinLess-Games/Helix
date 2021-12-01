@@ -1,0 +1,115 @@
+tech needed
+
+win application
+
+sql databases
+txt file storage
+dapper
+linq
+interfaces
+email from C#
+custom events
+advanced debigging
+
+
+INITIAL PLANNING
+
+Requirments:
+    - CMD terminals
+    - logs
+    - module activation_status
+    - online status
+    - warnings
+    - errors
+    - sql status
+    - starting progress bars
+    - login sytem
+    - liscence keys
+    - oauth2 (discord, google,{github?})
+    - google login, discord login
+    - update pushes
+    - anouncement pushes
+    - help (link to discord wiki)
+    - bug repporting
+    - easy to navigate
+    - visually pelaseing
+        - not square border
+
+QUESTIONS:
+    Should there be a terminal limit?
+    - YES, specifically oner per module that uses a terminal.
+    What type of front-end should the system have(form, webpage, app, ect.)?
+    - they system should be a decktop system for now, but later down the road turn it into a application
+    Where should the data be stored?
+    -  to start a locally hosted MYSQL server, later go to a datacenter storage.
+    how will logs, warnings and errors be handled?
+    - ideally the app will display warnings, errors and logs, based on user permission level.
+    Are there varying level of access?
+    - Yes, there will be different levels of access for different user types.
+    Should this system contact users?
+    - Yes, for various reasons, such as password resets, etc.
+
+
+
+Big picture Design
+
+STRUCTURE: widows form structure and class library
+DATA: SQL and
+USERS: one at a time on one application that uses the same sql database
+
+ket concepts:
+    - email
+    - SQL
+    - Custom Events
+    - Error handling
+    - interfaces
+    - Texting
+    - random variable making
+    - password hashing
+
+Data structures
+    - user
+        - permisson level (integer)
+        - Username (variable)
+        - password (variable)
+        - liscnse key (string)
+        - discord name (string)
+        - status (string)
+        - cellphone number (string)
+        - email address(string)
+    - activation
+        - status(string)
+    - debugging
+        - warnings (list{string})
+        - errors (list{string})
+        - connection
+            - status(string, {connected, disconnected})
+            - speed (string)
+            - sockets (list)
+            - ports (list)
+        - logs (.txt)
+        - status (string, {Red, yellow, Green})
+
+
+Permission groups and permissions
+
+- Owner
+    - Full access
+    - over all stats
+    - mysql table access
+- Admin
+    - user specified
+- Mod
+    - user specified
+- Developer
+    - owner specified
+- subscribed
+    - tag
+- Patron
+    - tag
+- Member
+    - user (default)
+    - server specific stats
+    - liscence key
+    - purchases
+    - access grants

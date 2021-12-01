@@ -1,0 +1,135 @@
+.namefiles
+
+APIs
+    - Google
+        - cloudSDK
+        - CalDAV API
+        - Gmail API
+        - Google Calendar API
+        - Tasks API
+        - Google Assistant API (MAYBE)
+        - Custom Search API
+        - Google Search API
+        - YouTube Data API v3
+        - FOR AI
+            - Cloud Natural Language API
+            - Cloud AutoML API
+            - Dialogflow API
+            - Vertex AI API
+            - Cloud Speech-to-Text API
+    - discord
+database 
+    - DataBases
+    - Models
+        - AI_Training_DB_Model
+            - Table_Input_models
+        - Helix_stats_Model
+            - Table_Input_models
+        - Web_Permissions_model
+            - Table_Input_models
+    - Scripts
+    - Conection
+Dependencies
+    - exe
+    - python 
+Documentaion
+    - docx
+    - img
+        - pdn
+        - png
+        - jpeg
+    Text
+lib
+    -
+Modules
+    - AI
+        - NLU
+            - tests
+            - scripts
+            - model_saves
+            - Model_compiler
+        - Models 
+            - NLU
+            - Prediction
+            - conversations
+            - analytics
+            - speech_recognition
+            - Speech_Sythesis
+        - Initialization
+            - test running
+            - config
+            - start_script
+        - datasets
+        - commands
+        - Scripts
+    - discord(node.js, JSON, YAML)
+        - Bot
+            - Comands
+            - Prefix
+            - scripts
+            - Initialization
+                - test running
+                - config
+                - start_script
+    - google(C#, Json, YAML)
+        - Calendar
+            - Comands
+            - scripts
+            - Initialization
+                - test running
+                - config
+                - start_script
+        - Gmail
+            - Comands
+            - scripts
+            - Initialization
+                - test running
+                - config
+                - start_script
+        - Tasks
+            - Comands
+            - scripts
+            - Initialization
+                - test running
+                - config
+                - start_script
+        - Google search
+            - Comands
+            - scripts
+            - Initialization
+                - test running
+                - config
+                - start_script
+        - Scripts
+        - Initialization 
+            - test running
+            - config
+            - start_script
+    - Oauth2 (python, JSON, YAML)
+        - discordlogin
+            - migrations
+        - oauth2_discord
+        - Comands
+        - scripts
+        - Initialization
+            - test running
+            - config
+            - start_script
+    - Program Finder(C#, YAml, JSON)
+        - tests
+        - 
+    - youtube(node.js, Python, YAML, JSON)
+        - discord use
+            - bot commands
+            - scripts
+            - Initialization
+                - test running
+                - config
+                - start_script
+        - browser use
+            - Comands
+            - scripts
+            - Initialization
+                - test running
+                - config
+                - start_script

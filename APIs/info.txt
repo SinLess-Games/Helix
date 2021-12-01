@@ -1,0 +1,19 @@
+APIs
+- google
+    - CalDAV API
+    - Gmail API
+    - Google Calendar API
+    - Tasks API
+    - Google Assistant API (MAYBE)
+    - Custom Search API
+
+
+    - YouTube Data API v3
+
+    - FOR AI
+        - Cloud Natural Language API
+        - Cloud AutoML API
+        - Dialogflow API
+        - Vertex AI API
+        - Cloud Speech-to-Text API
+- WordsAPI

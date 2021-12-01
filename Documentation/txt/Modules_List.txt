@@ -1,0 +1,72 @@
+AI (python, YAML, JSON)
+    - NLU
+        - tests
+        - scripts
+        - model_saves
+        - Model_compiler
+    - Models 
+        - NLU
+        - Prediction
+        - conversations
+        - analytics
+        - speech_recognition
+        - Speech_Sythesis
+    - Init
+    - datasets
+    - commands
+    - Scripts
+
+discord(Python, JSON, YAML)
+    - Bot
+        - Comands
+        - Prefix
+        - scripts
+        - Initialization
+        - Cogs
+            - Automod
+            - Music
+            - Roles
+            - Utilities 
+
+google(C#, Json, YAML)
+    - Calendar
+        - Comands
+        - scripts
+        - Initialization
+    - Gmail
+        - Comands
+        - scripts
+        - Initialization
+    - Tasks
+        - Comands
+        - scripts
+        - Initialization
+    - Google search
+        - Comands
+        - scripts
+        - Initialization
+    - Scripts
+    - Initialization 
+    
+Oauth2 (python, JSON, YAML)
+    - discordlogin
+        -migrations
+    - oauth2_discord
+    - google Oauth2
+    - Comands
+    - scripts
+    - Initialization
+
+Program Finder(C#, YAml, JSON)
+    - tests
+    - 
+
+youtube(node.js, Python, YAML, JSON)
+    - discord use
+        - bot commands
+        - scripts
+        - Initialization
+    - browser use
+        - Comands
+        - scripts
+        - Initialization

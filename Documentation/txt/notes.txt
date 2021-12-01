@@ -1,0 +1,3 @@
+figure out milestones
+    - order to work on modules
+research apis

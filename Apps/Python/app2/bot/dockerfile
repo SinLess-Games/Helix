@@ -1,0 +1,15 @@
+FROM python:3.10.0b2
+
+WORKDIR /Helix
+
+COPY requirements.txt requirements.txt
+
+RUN apt-get update
+RUN apt-get install libasound-dev libportaudio2 libportaudiocpp0 portaudio19-dev -y
+RUN pip install pyaudio
+
+RUN pip3 install -r requirements.txt
+
+COPY . .
+
+CMD ["python3", "bot.py"]

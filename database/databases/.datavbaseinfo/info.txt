@@ -1,0 +1,111 @@
+databases_name
+    - Table_Name
+        -Column_Name
+
+This specifies database structures/models for Helix AI Virtual Assistant. This will also specify any and all Extra info that may be needed for Databases.
+
+Helix_stats
+    - Stats
+        - ID
+        - discord guild(servername)
+        - discord user
+        - liscene key
+        - Query count
+    - lisence keys
+        - ID
+        -Client_ID
+        - key (random generated, 20 length, divied in groups of five with - )
+        - Status / Active Inactive (active on payment post to act)
+        - Date Created
+        - Date Activated
+        - Last Check-In(last time key was connect to internet)
+        - client using (how many clients use this key, INT, Should not be more than 1)
+    - clients
+        - ID(Auto_increment)
+        - Purchase_Date
+        - name(required)
+        - discord_name(=Discord_tag in authencated_users)
+        - Email(for recovery, must be vailid and working)(required)
+        - verified_email(Bool, Verifaction email link verified)(Required)
+        - verified (if user is in Authenticated_Users)(required)
+        - Liscence_Key
+        - Public_IP(Required)
+permissions/web database
+ data Base information for Permisions and clien't with web GUI access.
+    - web_access
+        - ID 
+        - name (used at purchase)
+        - LogIn_ID
+        - Password (encrypted)
+        - Security_Question_1
+        - Answer_1
+        - Security_Question_2
+        - Answer_2
+        - Security_Question_3
+        - Answer_3
+        - Email
+        - discord_name
+        - discord_token(encrypted)
+        - discord_Client_secret
+        - Discord_client_ID
+        - liscene_key
+        - Permission_Group
+        - Access_level(INT)
+    - Permission Groups (FOR WEB GUI)
+        - ID
+        - GName
+            - Super_User
+            - Admin
+            - Developer
+            - Client
+            - Account_Owner
+            - Account_manager
+            - invited
+            - invited user groups
+                - Admin
+                - Developer
+                - Mod
+                - helper
+                - Custom (custom permission group, user creates ing WEB-GUI(Check boxes for permissions, integrates with roles in discord, two sections one for discord perms, one for web_acess))
+        - Permission Level (INT)
+        - user count (howmany have this group)
+        - status Active/ Inactive
+        - Used/ Unused (if user count >= 1)
+    - Permission Level (links with permission level of permission groups, lists the id's in compressed order(as all permisions id added together ))
+            - ID (autogen)
+            - list permissions as true/false as columns
+            - access server Stats
+            - manage server permisions
+            - access grants(to grant acess to admins, mods, helpers, etc. IN DISCORD)(Generates invite link to register.)
+            - access Helix Configuration
+            - module activation
+            - settings(for discord)
+            - settings(for helix)
+    - permissions
+        - ID
+        - Permission name
+        - Access
+        - users_w_permission (users with permision)
+        - Used/ Unused (used if users_w_permission >= 1)
+    - WebPage
+        - ID (Auto_increment)
+        - Website
+        - URL
+Voice_Commands
+    - ID(Auto_increment)
+    - Command(TXT)
+    - Script(FILENAME)
+    - use(discription of what its for)
+    - Association(what module it belongs to)
+    - Target(target of command)
+Authenticated_Users 
+    - ID (discord defined)
+    - discord_tag
+    - avatar
+    - public_flags
+    - flags
+    - locale
+    - mfa_enabled
+    - last_login
+    - access_token
+    - Refresh_Token

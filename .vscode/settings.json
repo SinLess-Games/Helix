@@ -1,0 +1,49 @@
+{
+    "idf.gitPath": "C:\\Users\\disda\\.espressif\\tools\\idf-git\\cmd\\git.exe",
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "username": "root",
+            "name": "conection1",
+            "database": "server_stats",
+            "password": ""
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "conection2",
+            "database": "web_access",
+            "username": "root",
+            "password": ""
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "conection 3",
+            "database": "ai_training_data",
+            "username": "root",
+            "password": ""
+        }
+    ],
+    "prettier.insertPragma": true,
+    "prettier.quoteProps": "consistent",
+    "prettier.useTabs": true,
+    "prettier.eslintIntegration": true,
+    "vsprettier.insertPragma": true
+}

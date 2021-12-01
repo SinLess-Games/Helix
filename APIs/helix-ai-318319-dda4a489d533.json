@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "helix-ai-318319",
+  "private_key_id": "dda4a489d533b30a84ae369ad16140d224b0bd78",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDNsCTSbIcSewF2\nv2bOb6TdwKjrlfw/ytJsXccQMbJfn6L7cqRfNK9IWXQRDtSHs7vUuCbqzTSFCvvF\n10FaPuJ3TODZszIfrvL5u/ls43qJHiC8aqLsps+bhaVaeC4aSdSyvfX1GRQl/zIg\ndBonRMC/iZkQNvx2JlfG9nFVEZk9PjM5PQjLchNdEbq+jrux98SkeZprNQVUmrPK\n++WLEf+3zCEU7jJ/nOQ1eN+ooEnUQg34nywTlpMkqLQnXaF9N2Bv7laaAYziQKIu\nLXN9Ct2HrOzZ4W6OmyhmK6p82ZNmkv6zCnAP4GlShh4jmZg3GL+vFQ1TUvf1pFRC\nILDzP9/3AgMBAAECggEACjbZlUODb6UBHRsDKXQ83TBAkzZnCOnzCiOcC49UOtBs\nIQ1/4SR2IeMjUueIIVcJGFauxBE9ru+tMhVu7uLZjzAXqGfwMMeY1FMD32bqgl2n\nJYQsJBFilOgNnpECRRbug5PQX4QHzp0+KYNqexG8eqaEHdyFK/7adAxv81gE4pgZ\n1lyQqGLULphrr1DODISAaGmUIVpTvoT7NI0h6HanwCvs3ThsBvKS+w+d6RuMdSeh\nAvXE+jA3XjJytuc/6ULUzQ7nuZ6c+fKP7ubGchUS0aaZResmenh5NuiDrOG6am/c\nRARsC+s1jAOubFLZcKsRu0bVYWgmPa+SoXM3HW0t4QKBgQDvdnbVsY8bbqk+mdnE\nIS9/7kE+E/rtiGqQNsR6r+6MeyTvXnnvIWj8lNro5wiUQVo8jN1klNBE1hc2qiDt\n9EqOnLhVbSfWKxmNCq3XeyRh4pm4JiaPmVkZh9a7RhDJ5zXQA9xUdyk/X1godJrX\nrvJjROIPE1onNo3Bq412a4hYIQKBgQDb5JEGEmo4M+V+U8kxg0m/yFo4eh26cJwV\nJGnhlhHaS6nTlY035NJpNauxPf9CrKj0kzjqTkPsBxSft9eE95TBKGJEn91TFl4x\nibN/dwYmysKBoWh7e4j0rxQIeN3YO7vViE6g+kYDgbu/9UvHc9rQzg2oDwDn4rJV\nn+iR6R1VFwKBgFqxPj6e2flkxvqroDtU6j2Eifct8ApIcTufUni46xsPhKSX3ox/\n1dhbtDEjVy93NOrb2vm+FscLYo1Uj9YvgJFUr8fC6KSHfEzbr4192QCtptSEtnQK\neyFdPil9VtxxEgNvguIGo3uZ67SevQpU+v4313ooNSvG0Jd6FsCz51ahAoGAFWqi\nkVPT0puDW5VvgAoIccxitSN3p8P1/70nLth97qP162yib3Iy6BpZGY8vQGAuqHt6\nTJ/Iz8E0ygWO0R2H+HQldgeX99Ky4+JEgEKob7jJzvRYh8ZVZXdz3QtgmAHhXn/D\nILyfexH0plKOyeNHyZR4Egk8DlmvAtXrQeLRf4sCgYBHa8Cpw+4pTikl4NaE5aWb\nymsMBSLpl3ntl6PYVaodwaegP2QFrPCYuHBC5evwRweDeDE4qQTrPipVqKM9zYA/\nxO0kB6WRvvy2UiSMg03xVxOK1/tI7HVYcCE/hisI0T5198ubXYqsQR8y45OfUFpW\nTCLSFEtdqZ2453w5IyTqAg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "cloud-stt-api@helix-ai-318319.iam.gserviceaccount.com",
+  "client_id": "111428751905523100248",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/cloud-stt-api%40helix-ai-318319.iam.gserviceaccount.com"
+}
