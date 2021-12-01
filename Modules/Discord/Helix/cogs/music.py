@@ -18,9 +18,9 @@ from youtube_dl import YoutubeDL
 from async_timeout import timeout
 
 
-from Helix.utils.exceptions import HelixGuildCheckFailure
-from Helix.utils.embed_handler import success, failure, info
-from Helix.constants import ytdl_format_options, ffmpeg_options
+from utils.exceptions import HelixGuildCheckFailure
+from tils.embed_handler import success, failure, info
+from constants import ytdl_format_options, ffmpeg_options
 
 
 logger = logging.getLogger(__name__)

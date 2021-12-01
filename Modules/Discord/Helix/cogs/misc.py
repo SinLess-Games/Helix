@@ -7,10 +7,10 @@ import psutil
 import discord
 from discord.ext import commands
 
-from Helix.utils.message_handler import RemovableMessage
-from Helix.utils.embed_handler import info, status_embed
-from Helix.utils.checks import check_if_it_is_Sinless_guild
-from Helix.constants import embed_space, Helix_paste_service_link
+from utils.message_handler import RemovableMessage
+from utils.embed_handler import info, status_embed
+from utils.checks import check_if_it_is_Sinless_guild
+from constants import embed_space, Helix_paste_service_link
 
 
 class Miscellaneous(commands.Cog):

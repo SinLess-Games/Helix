@@ -5,9 +5,9 @@ from typing import Set, Tuple
 import discord
 from discord.ext import commands, tasks
 
-from Helix import constants
-from Helix.utils.embed_handler import success, failure
-from Helix.utils.checks import check_if_it_is_Sinless_guild
+import constants
+from utils.embed_handler import success, failure
+from utils.checks import check_if_it_is_Sinless_guild
 
 
 logger = logging.getLogger(__name__)

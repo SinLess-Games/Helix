@@ -8,7 +8,7 @@ import aiohttp
 from collections import OrderedDict
 import mysql.connector
 from discord.ext import commands
-from Helix.utils import checks
+from utils import checks
 
 
 def clean_string(string):

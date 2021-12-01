@@ -6,11 +6,11 @@ from asyncio import TimeoutError
 import discord
 from discord.ext import commands
 
-from Helix import constants
-from Helix.utils.cooldown import CoolDown
-from Helix.utils.message_logger import MessageLogger
-from Helix.utils.checks import check_if_it_is_Sinless_guild
-from Helix.utils.embed_handler import authored, failure, success, info, create_suggestion_msg
+import constants
+from utils.cooldown import CoolDown
+from utils.message_logger import MessageLogger
+from utils.checks import check_if_it_is_Sinless_guild
+from utils.embed_handler import authored, failure, success, info, create_suggestion_msg
 
 
 logger = logging.getLogger(__name__)

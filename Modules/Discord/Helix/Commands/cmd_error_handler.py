@@ -5,7 +5,7 @@ import traceback
 import discord
 from discord.ext import commands
 
-from Helix.utils.embed_handler import failure
+from utils.embed_handler import failure
 
 
 logger = logging.getLogger(__name__)
