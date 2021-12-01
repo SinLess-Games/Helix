@@ -9,8 +9,8 @@ import typing
 from discord.ext import commands
 from tortoise import Tortoise
 from utils.db_tools import connect, execute
-from Helix.models import GuildConfig, WelcomeConfig, LeaveConfig
-from Helix.cogs.help import send_embed
+from models import GuildConfig, WelcomeConfig, LeaveConfig
+from cogs.help import send_embed
 
 sentry_sdk.init(
     "https://fe349234191e4e86a83c8cd381068ab4@o901570.ingest.sentry.io/5994911",
