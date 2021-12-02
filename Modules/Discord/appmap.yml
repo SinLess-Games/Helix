@@ -1,0 +1,23 @@
+name: Discord
+packages:
+- path: multidict
+- path: _yaml
+- path: pkg_resources
+- path: wheel
+- path: attr
+- path: aenum
+- path: psutil
+- path: yarl
+- path: yaml
+- path: pip
+- path: tortoise
+- path: setuptools
+- path: atlastk
+- path: examples
+- path: async_timeout
+- path: discord
+- path: idna
+- path: youtube_dl
+- path: _distutils_hack
+- path: aiohttp
+- path: chardet

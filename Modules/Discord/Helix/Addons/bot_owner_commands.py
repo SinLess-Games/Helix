@@ -3,8 +3,8 @@ from pathlib import Path
 
 from discord.ext import commands
 
-from Helix.utils.embed_handler import success, failure
-from Helix.utils.checks import Helix_bot_developer_only
+from utils.embed_handler import success, failure
+from utils.checks import Helix_bot_developer_only
 
 
 logger = logging.getLogger(__name__)

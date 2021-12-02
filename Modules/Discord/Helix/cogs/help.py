@@ -4,8 +4,8 @@ import logging
 from discord.ext import commands
 from discord.errors import Forbidden
 from discord.ext import commands
-from Helix.constants import embed_space
-from Helix.utils.paginator import EmbedPaginator
+from constants import embed_space
+from utils.paginator import EmbedPaginator
 
 
 logger = logging.getLogger(__name__)
