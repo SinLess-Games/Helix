@@ -6,9 +6,9 @@ import logging
 from discord.ext import commands
 from discord.ext import tasks
 from datetime import datetime
-from Helix.utils.db_tools import connect, execute, execute_data_input, close, commit, execute_multi
+from utils.db_tools import connect, execute, execute_data_input, close, commit, execute_multi
 from mysql.connector import errorcode
-from Helix.log_setup import logger
+
 
 # Open Config file for TOKEN
 with open("Configs/config.yml", 'r') as i:

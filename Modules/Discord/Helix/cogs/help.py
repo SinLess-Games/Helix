@@ -3,9 +3,8 @@ import yaml
 import logging
 from discord.ext import commands
 from discord.errors import Forbidden
-from discord.ext import commands
-from Helix.constants import embed_space
-from Helix.utils.paginator import EmbedPaginator
+from constants import embed_space
+from utils.paginator import EmbedPaginator
 
 
 logger = logging.getLogger(__name__)
@@ -76,9 +75,8 @@ class Help(commands.Cog):
                 owner = ctx.guild.get_member(owner).mention
 
             except AttributeError as e:
-                owner = owner
-
-            # starting to build embed
+                # starting to build embed
+                return
             emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
                                 description=f'Use `{prefix}help <module>` to gain more information about that module '
                                             f':smiley:\n')

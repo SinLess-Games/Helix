@@ -4,8 +4,8 @@ from asyncpraw import models
 
 from discord import Embed, Color, Member, User, Status, Message, TextChannel
 
-from Helix import constants
-from Helix.utils.misc import (
+import constants
+from utils.misc import (
     get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date
 )
 

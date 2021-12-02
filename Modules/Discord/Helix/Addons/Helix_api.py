@@ -3,11 +3,11 @@ import logging
 from discord.ext import commands
 from discord import Member, Embed, Message, Color, Forbidden
 
-from Helix import constants
-from Helix.api_client import ResponseCodeError
-from Helix.utils.converters import DatabaseMember
-from Helix.utils.embed_handler import failure, success, goodbye, info, thumbnail
-from Helix.utils.checks import check_if_it_is_Sinless_guild, Helix_bot_developer_only
+import constants
+from api_client import ResponseCodeError
+from utils.converters import DatabaseMember
+from utils.embed_handler import failure, success, goodbye, info, thumbnail
+from utils.checks import check_if_it_is_Sinless_guild, Helix_bot_developer_only
 
 
 logger = logging.getLogger(__name__)
