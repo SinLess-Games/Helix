@@ -8,7 +8,7 @@ from discord.abc import Messageable
 from discord import ClientUser, User, Member, HTTPException, Embed
 from discord.ext import commands
 
-from Helix.utils.embed_handler import info
+from utils.embed_handler import info
 
 
 class Paginator:

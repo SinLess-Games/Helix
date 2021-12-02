@@ -19,7 +19,7 @@ from async_timeout import timeout
 
 
 from utils.exceptions import HelixGuildCheckFailure
-from tils.embed_handler import success, failure, info
+from utils.embed_handler import success, failure, info
 from constants import ytdl_format_options, ffmpeg_options
 
 
