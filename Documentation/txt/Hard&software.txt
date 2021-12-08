@@ -19,27 +19,30 @@
 ############################################################################################################
 ############################################################################################################
 
-- High availability Kubernetes Cluster done with K3S
-- 3 Node dell R710 server stack
+- 5 Node dell R710 server stack
     - {vcpu calculation}[sockets X cores X Threads] 
     - 248GB RAM
-        -83GB per node  
-    - 122 VCPU Cores 
-        - 2x 4core 8 thread cpu per node 
+        -83GB per node (minimum)
+    - 122 VCPU Cores (minimum)
+        - 2x 4core 8 thread cpu per node (minimum)
     - 4 gb nic or 4 10 gb nic
-    - 100TB Harddrive space
+    - 100TB Harddrive space (minimum)
     - proxmox clusters
-- Kemp Loadmaster
+- Kemp Loadmaster (physical)
+- 10GB switching
+
+
+
+- High availability Kubernetes Cluster done with K3S
 - Kaptin for kubernetes[d2iq]
 - mysql server
-
-
 - elastic search cluster
 - Graphana?
 - exporter service-- 
 - docker?
 - Prometheus?
-
+- Snyk
+- 
 
 
 

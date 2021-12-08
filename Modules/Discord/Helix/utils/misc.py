@@ -3,7 +3,7 @@ import datetime
 
 from discord import Member, Activity, Game, Spotify, CustomActivity, Status
 
-from Helix import constants
+import constants
 
 
 logger = logging.getLogger(__name__)

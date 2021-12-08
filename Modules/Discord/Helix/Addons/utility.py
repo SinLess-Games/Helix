@@ -4,9 +4,9 @@ import discord
 from async_cse import Search
 from discord.ext import commands
 
-from Helix.api_client import StackAPI
-from Helix.utils.paginator import ListPaginator
-from Helix.constants import upvote_emoji_id, google_icon, stack_overflow_icon
+from api_client import StackAPI
+from utils.paginator import ListPaginator
+from constants import upvote_emoji_id, google_icon, stack_overflow_icon
 
 
 class Utility(commands.Cog):
