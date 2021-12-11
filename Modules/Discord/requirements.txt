@@ -43,7 +43,7 @@ dill==0.3.4
 discord-ext-ipc==2.1.1
 discord-ext-menus @ git+https://github.com/Rapptz/discord-ext-menus@fbb8803779373357e274e1540b368365fd9d8074
 discord.py==1.7.3
-Django==3.2.9
+Django==3.2.10
 django-classy-tags==2.0.0
 django-cms==3.9.0
 django-formtools==2.3
