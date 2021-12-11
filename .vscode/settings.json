@@ -45,5 +45,13 @@
     "prettier.quoteProps": "consistent",
     "prettier.useTabs": true,
     "prettier.eslintIntegration": true,
-    "vsprettier.insertPragma": true
+    "vsprettier.insertPragma": true,
+    "gitflow4code.init": {
+        "develop": "Development",
+        "master": "Master",
+        "releases": "Release Candidate",
+        "hotfixes": "HotFix",
+        "features": "Feature",
+        "support": ""
+    }
 }

@@ -5,6 +5,9 @@ from discord.ext import commands
 from discord.errors import Forbidden
 from constants import embed_space
 from utils.paginator import EmbedPaginator
+from utils.db_tools import ServerList
+from sqlalchemy import *
+from sqlalchemy.orm import Session
 
 
 logger = logging.getLogger(__name__)
@@ -54,12 +57,23 @@ class Help(commands.Cog):
         """
         Shows all modules of that bot
         """
+
         with open("Configs/config.yml", 'r') as i:
             cfg = yaml.safe_load(i)
 
         # !SET THOSE VARIABLES TO MAKE THE COG FUNCTIONAL!
-        prefix = cfg['Prefix']
         version = cfg['Version']
+        host = cfg['SQL_Host']
+        user = cfg['SQL_UserName']
+        passwd = cfg['SQL_Password']
+        db = cfg['DefaultDatabase']
+        engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{db}', echo=False)
+        with Session(engine) as session:
+            GuildData = session.query(ServerList).filter_by(ServerID=ctx.guild.id).first()
+        # print(GuildData)
+
+        prefix = GuildData.Prefix
+        # print(f"prefix is {prefix}")
 
         # setting owner name - if you don't wanna be mentioned remove line 49-60 and adjust help text (line 88)
         owner = cfg['OWNER_NAME']
@@ -102,7 +116,7 @@ class Help(commands.Cog):
                 emb.add_field(name='Not belonging to a module', value=commands_desc, inline=False)
 
             # setting information about author
-            emb.add_field(name="About", value=f"Helix is developed by Sinless777#6702 \n\
+            emb.add_field(name="About", value=f"Helix is developed by Sinless777#001 \n\
                                     This version of Helix is maintained by {owner}\n\
                                     Please visit https://github.com/SinLess-Games/Helix to submit ideas or bugs.")
             emb.set_footer(text=f"Bot is running on Version: {version}")

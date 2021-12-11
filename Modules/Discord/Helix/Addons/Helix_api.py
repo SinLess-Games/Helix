@@ -65,11 +65,11 @@ class HelixAPI(commands.Cog):
         await ctx.send(embed=success("Suggestion successfully denied."), delete_after=5)
 
     async def _suggestion_helper(
-        self,
-        ctx,
-        message_id: int,
-        reason: str,
-        status: constants.SuggestionStatus
+            self,
+            ctx,
+            message_id: int,
+            reason: str,
+            status: constants.SuggestionStatus
     ):
         """
         Helper for suggestion approve/deny.

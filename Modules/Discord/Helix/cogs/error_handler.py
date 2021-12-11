@@ -20,9 +20,9 @@ class CommandErrorHandler(commands.Cog):
         Parameters
         ------------
         ctx: commands.Context
-            The context used for command invocation.
+        The context used for command invocation.
         error: commands.CommandError
-            The Exception raised.
+        The Exception raised.
         """
         if hasattr(ctx.command, 'on_error'):
             return
