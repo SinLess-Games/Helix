@@ -1,7 +1,7 @@
 # Helix AI discord Bot Dockerfile
 
 # base image
-FROM python:3.9.4
+FROM python:3.10.0b4
 
 # Work Directory
 WORKDIR /Helix
