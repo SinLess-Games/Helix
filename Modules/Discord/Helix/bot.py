@@ -1,16 +1,16 @@
 # Name Helix
 
+import typing
 from os import listdir
+
 import discord
-import asyncio
 import sentry_sdk
 import yaml
-import typing
 from discord.ext import commands
-from tortoise import Tortoise
-from utils.db_tools import connect, execute
-from models import GuildConfig, WelcomeConfig, LeaveConfig
+
 from cogs.help import send_embed
+from models import GuildConfig, WelcomeConfig, LeaveConfig
+from utils.db_tools import connect, execute
 
 sentry_sdk.init(
     "https://fe349234191e4e86a83c8cd381068ab4@o901570.ingest.sentry.io/5994911",
@@ -70,25 +70,14 @@ async def get_prefix(bot: commands.Bot, message: discord.Message):
     else:
         return PREFIX
 
+
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
-
-
-async def connect_db():
-    await Tortoise.init(
-        db_url="mysql://Admin:Shellshocker93!@192.168.86.78:3306/discord",
-        modules={'models': ["models"]}
-    )
-    await Tortoise.generate_schemas()
 
 bot.remove_command('help')
 
 
 @bot.event
 async def on_ready():
-
-    await connect_db()
-
-    print("Connected to db")
     print("Loading extensions")
 
     await load_extensions()
