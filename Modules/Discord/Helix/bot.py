@@ -8,6 +8,7 @@ import discord
 import sentry_sdk
 import yaml
 from discord.ext import commands
+
 from sqlalchemy import *
 from sqlalchemy.orm import Session
 from sqlalchemy_utils import database_exists, create_database
@@ -87,7 +88,6 @@ async def get_prefix(bot: commands.Bot, message: discord.Message):
             GuildData = session.query(ServerList).filter_by(ServerID=message.guild.id).first()
             return GuildData.Prefix
 
-
 bot = commands.Bot(command_prefix=get_prefix, intents=intents)
 
 bot.remove_command('help')
@@ -109,7 +109,6 @@ async def on_ready():
     await bot.change_presence(status=config_activity, activity=activity)
 
     async for guild in bot.fetch_guilds():
-
         memberList = []
         channelList = await guild.fetch_channels()
         async for member in guild.fetch_members():
