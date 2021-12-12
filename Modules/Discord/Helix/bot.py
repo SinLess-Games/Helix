@@ -1,17 +1,22 @@
 # Name Helix
 
 import typing
+from datetime import datetime
 from os import listdir
 
 import discord
 import sentry_sdk
 import yaml
 from discord.ext import commands
+from models import GuildConfig, WelcomeConfig, LeaveConfig
+from sqlalchemy import *
+from sqlalchemy.orm import Session
+from sqlalchemy_utils import database_exists, create_database
 
 from cogs.help import send_embed
-from models import GuildConfig, WelcomeConfig, LeaveConfig
-from utils.db_tools import connect, execute
+from utils.db_tools import ServerList, Users, Stats, Config, BlackList, Mutes
 
+# Sentry error reporting
 sentry_sdk.init(
     "https://fe349234191e4e86a83c8cd381068ab4@o901570.ingest.sentry.io/5994911",
 
@@ -22,7 +27,6 @@ sentry_sdk.init(
 )
 
 # Discord Intents
-
 intents = discord.Intents.default()
 intents.typing = True
 intents.presences = True
@@ -39,11 +43,24 @@ with open("Configs/config.yml", "r", encoding="utf-8") as file:
 # sends discord logging files which could potentially be useful for catching errors.
 FORMAT = '[%(asctime)s]:[%(levelname)s]: %(message)s'
 
+# Config Variables
 TOKEN = config['Token']
 VERSION = config['Version']
 OWNER_NAME = config['OWNER_NAME']
 OWNER_ID = config['bot_owner_id']
-PREFIX = config['Prefix']
+PREFIX = config['DefaultPrefix']
+host = config['SQL_Host']
+user = config['SQL_UserName']
+passwd = config['SQL_Password']
+db = config['DefaultDatabase']
+
+# SqlAlchemy engine construction
+engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{db}', echo=False)
+if not database_exists(engine.url):
+    create_database(engine.url)
+else:
+    # If DB exists prints database_exists
+    print(database_exists(engine.url))
 
 
 async def load_extensions():
@@ -64,36 +81,95 @@ async def load_extensions():
 
 
 async def get_prefix(bot: commands.Bot, message: discord.Message):
-    g_config = await GuildConfig.filter(ID=message.guild.id).get_or_none()
-    if g_config:
-        return g_config.prefix
-    else:
-        return PREFIX
+    with Session(engine) as session:
+        guild = session.query(ServerList).filter_by(ServerID=message.guild.id).first()
+        if not guild:
+            return PREFIX
+        else:
+            GuildData = session.query(ServerList).filter_by(ServerID=message.guild.id).first()
+            return GuildData.Prefix
 
 
-bot = commands.Bot(command_prefix=PREFIX, intents=intents)
+bot = commands.Bot(command_prefix=get_prefix, intents=intents)
 
 bot.remove_command('help')
 
 
 @bot.event
 async def on_ready():
+    print("Connected to db")
     print("Loading extensions")
 
     await load_extensions()
 
     print("Extensions Loaded")
-    print("Bot is Ready")
+    print(f'\033[1;32m Bot is ready! DEUS VULT!')
 
     config_activity = config['bot_activity']
     activity = discord.Game(name=config['bot_status_text'])
+
     await bot.change_presence(status=config_activity, activity=activity)
 
     async for guild in bot.fetch_guilds():
+
+        memberList = []
+        channelList = await guild.fetch_channels()
+        async for member in guild.fetch_members():
+            memberList.append(member)
+        members = len(memberList)
+        # print("members: " + str(members))
+        channels = len(channelList)
+        # print("channels: " + str(channels))
+
+        ServerList.__table__.create(bind=engine, checkfirst=True)
+
         # create server specific databases
-        data_base = ("CREATE DATABASE IF NOT EXISTS`{}`".format(guild.id))
-        connect('discord')
-        execute(data_base)
+        with Session(engine) as session:
+            serv = ServerList()
+
+            GuildExists = session.query(ServerList).filter_by(ServerID=guild.id).first()
+            if not GuildExists:
+                serv.ServerID = guild.id
+                serv.ServerName = guild.name
+                serv.MemberCount = members
+                serv.ChannelCount = channels
+                serv.LastUpdate = datetime.now()
+                session.add(serv)
+                session.commit()
+                session.close()
+
+            else:
+                session.query(ServerList).filter_by(ServerID=guild.id).update({
+                    "ServerName": guild.id,
+                    "MemberCount": members,
+                    "ChannelCount": channels,
+                    "LastUpdate": datetime.now()
+                }, synchronize_session="fetch")
+                session.commit()
+                session.close()
+
+    async for guild in bot.fetch_guilds():
+        Engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{guild.id}', echo=False)
+        if not database_exists(Engine.url):
+            create_database(Engine.url)
+        else:
+            # If DB exists prints database_exists
+            print(database_exists(Engine.url))
+
+        usr = Users()
+        sts = Stats()
+        cfg = Config()
+        bl = BlackList()
+        mut = Mutes()
+
+        Users.__table__.create(bind=Engine, checkfirst=True)
+        Stats.__table__.create(bind=Engine, checkfirst=True)
+        Config.__table__.create(bind=Engine, checkfirst=True)
+        BlackList.__table__.create(bind=Engine, checkfirst=True)
+        Mutes.__table__.create(bind=Engine, checkfirst=True)
+
+        with Session(Engine) as session:
+            pass
 
 
 @bot.command()
@@ -102,15 +178,22 @@ async def prefix(ctx: commands.Context, *, _prefix: typing.Optional[str] = None)
     """
     Sets the Prefix for you server
     """
-    config1 = await GuildConfig.filter(ID=ctx.guild.id).get_or_none()
+
+    with Session(engine) as session:
+        GuildData = session.query(ServerList).filter_by(ServerID=ctx.guild.id).first()
+
     if not _prefix:
-        return await ctx.send(f"The current Prefix for this server is {config1.prefix if config1 else PREFIX}")
-    if not config1:
-        new_config = GuildConfig(ID=ctx.guild.id, prefix=_prefix)
-        await new_config.save()
+        return await ctx.send(f"The current Prefix for this server is {GuildData.Prefix if GuildData else PREFIX}")
+
     else:
-        config1.prefix = _prefix
-        await config1.save()
+        GuildData.Prefix = _prefix
+        with Session(engine) as session:
+            session.query(ServerList).filter_by(ServerID=ctx.guild.id).update({
+                "Prefix": _prefix,
+                "LastUpdate": datetime.now()
+            }, synchronize_session="fetch")
+            session.commit()
+            session.close()
     return await ctx.send(f"set the prefix for this server to '{_prefix}'")
 
 

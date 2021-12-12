@@ -273,7 +273,7 @@ class Miscellaneous(commands.Cog):
             await ctx.send(embed=info(f":coin: | Coin tossed {times} times | **{coin_toss}**", ctx.me, title=""))
         else:
             await ctx.send(embed=info("Oops! You can't toss that many times. Try a number less than 25",
-                           ctx.me, title=""))
+                                      ctx.me, title=""))
 
     @commands.command(aliases=["roll"])
     async def dice(self, ctx, times: int = 1):
@@ -286,7 +286,7 @@ class Miscellaneous(commands.Cog):
             await ctx.send(embed=info(f"🎲 | Dice Rolled {times} times | **{dice_roll}**", ctx.me, title=""))
         else:
             await ctx.send(embed=info("Oops! You can't roll that many times. Try a number less than 25",
-                           ctx.me, title=""))
+                                      ctx.me, title=""))
 
     @commands.command(aliases=["random"])
     async def randint(self, ctx, low: int = 1, high: int = 100, n: int = 1):
@@ -299,11 +299,11 @@ class Miscellaneous(commands.Cog):
         elif (n == 1):
             output = random.randint(low, high)
             await ctx.send(embed=info(f"🔢 | Random number between {low} & {high} | **{output}**",
-                           ctx.me, title=""))
+                                      ctx.me, title=""))
         else:
             output = ", ".join(str(random.randint(low, high)) for _ in range(n))
             await ctx.send(embed=info(f"🔢 | {n} Random numbers between {low} & {high} | **{output}**",
-                           ctx.me, title=""))
+                                      ctx.me, title=""))
 
     @commands.command(aliases=["choose"])
     async def choice(self, ctx, *, args):

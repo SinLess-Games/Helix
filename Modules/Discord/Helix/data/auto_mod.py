@@ -6,7 +6,6 @@ import re
 import yaml
 import aiohttp
 from collections import OrderedDict
-import mysql.connector
 from discord.ext import commands
 from utils import checks
 

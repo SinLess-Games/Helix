@@ -95,8 +95,6 @@ class HelixDM(commands.Cog):
             return
         if user_id == self.bot.user.id:
             return  # Ignore the bot
-        elif self.is_any_session_active(user_id):
-            return
 
         if self.cool_down.is_on_cool_down(user_id):
             msg = f"You are on cooldown. You can retry after {self.cool_down.retry_after(user_id)}s"

@@ -1,9 +1,20 @@
-import mysql.connector
-
+import yaml
 from discord import Embed
 from discord.ext import commands
-from mysql.connector import errorcode
 from datetime import datetime
+from sqlalchemy.orm import Session
+from sqlalchemy import *
+from utils.db_tools import ServerList, Users, Stats, Config, BlackList, Mutes
+
+# Opens the config and reads it, no need for changes unless you'd like to change the library (no need to do so unless
+# having issues with ruamel)
+with open("Configs/config.yml", "r", encoding="utf-8") as file:
+    config = yaml.safe_load(file)
+
+
+host = config['SQL_Host']
+user = config['SQL_UserName']
+passwd = config['SQL_Password']
 
 
 class Mod(commands.Cog):
@@ -16,37 +27,18 @@ class Mod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        db = message.guild.id
+        engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{db}', echo=False)
         if message.author.id == 852957689905676368:
             return
         if message.content.startswith("H!"):
             return
-        global cnx
-        global cursor
-        msg = message.content
-        try:
-            cnx = mysql.connector.connect(
-                host='192.168.86.78',
-                user='Admin',
-                password='Shellshocker93!',
-                database=f"{message.guild.id}"
-            )
-            # exception occurred
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print(f'\033[1;31m Something is wrong with your user name or password')
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print(f'\033[1;31m Database does not exist')
-            else:
-                print(f'\033[1;31m {err}')
-        if cnx.is_connected():
-            # print(f'Message Recieved.\n " {msg} " \n')
-            cursor = cnx.cursor()
-            cursor.execute("select database();")
-            record = cursor.fetchone()
-            # print(f'\033[1;32m You\'re connected to database: \033[3;34m', record)
-        cursor.execute('SELECT word FROM blacklist')
+
+        with Session(engine) as session:
+            guild = session.execute('SELECT word FROM BlackList')
+
         blacklist = set()
-        for word_tuple in cursor.fetchall():  # function fixed by Parados @ stackoverflow
+        for word_tuple in guild.fetchall():  # function fixed by Parados @ stackoverflow
             blacklist.add(word_tuple[0])
         # print(blacklist)
 
@@ -59,44 +51,22 @@ class Mod(commands.Cog):
 
                 return await message.author.send(
                     f'''Your message "{message.content}" was removed for containing the blacklisted word "{word}"''')
-        cnx.close()
 
     @commands.command(name='blacklist')
     async def blacklist(self, ctx):
         """
         displays the black listed words for a server
         """
-        global cnx
-        global cursor
-        try:
-            cnx = mysql.connector.connect(
-                host='192.168.86.78',
-                user='Admin',
-                password='Shellshocker93!',
-                database=f"{ctx.guild.id}"
-            )
-            # exception occurred
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print(f'\033[1;31m Something is wrong with your user name or password')
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print(f'\033[1;31m Database does not exist')
-            else:
-                print(f'\033[1;31m {err}')
-        if cnx.is_connected():
-            cursor = cnx.cursor()
-            cursor.execute("select database();")
-            record = cursor.fetchone()
-            # print(f'\033[1;32m You\'re connected to database: \033[3;34m', record)
-        cursor.execute('SELECT word FROM blacklist')
+        with Session(engine) as session:
+            guild = session.execute('SELECT word FROM BlackList')
+
         blacklist = set()
-        for word_tuple in cursor.fetchall():  # function fixed by Parados @ stackoverflow
+        for word_tuple in guild.fetchall():  # function fixed by Parados @ stackoverflow
             blacklist.add(word_tuple[0])
         emb = Embed(title="Blacklisted Words", colour=0xe74c3c)
         emb.set_author(name="Helix")
         emb.add_field(name="blacklist", value=f"{blacklist}")
         return await ctx.send(embed=emb)
-        cnx.close()
 
     @commands.command(name='add')
     async def add_word(self, ctx, *, to_be_blacklisted: str = None):
@@ -107,39 +77,16 @@ class Mod(commands.Cog):
             # print(ctx)
             await ctx.channel.send("You need to specify a word to blacklist")
             return
-        global cnx
-        global cursor
-        try:
-            cnx = mysql.connector.connect(
-                host='192.168.86.78',
-                user='Admin',
-                password='Shellshocker93!',
-                database=f"{ctx.guild.id}"
-            )
-            # exception occurred
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print(f'\033[1;31m Something is wrong with your user name or password')
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print(f'\033[1;31m Database does not exist')
-            else:
-                print(f'\033[1;31m {err}')
-        if cnx.is_connected():
-            cursor = cnx.cursor()
-            cursor.execute("select database();")
-            record = cursor.fetchone()
-            # print(f'\033[1;32m You\'re connected to database: \033[3;34m', record)
-        update_date = datetime.now()
-        add_word = ("INSERT INTO blacklist"
-                    "(word, Last_Update)"
-                    "VALUES (%s, %s)"
-                    )
-        data_word = (to_be_blacklisted, update_date)
-        cursor.execute(add_word, data_word)
-        cnx.commit()
-        await ctx.send(f'Added "{to_be_blacklisted}" to the blacklist', delete_after=23)
+        with Session(engine) as session:
+            update_date = datetime.now()
+            bl = BlackList()
+            bl.Word = to_be_blacklisted
+            bl.AddDate = update_date
+            session.add(bl)
+            session.commit()
+            session.close()
 
-        cnx.close()
+        await ctx.send(f'Added "{to_be_blacklisted}" to the blacklist', delete_after=23)
 
     @commands.command(name="RemoveWord")
     async def remove_word(self, ctx, *, word: str = None):
@@ -149,31 +96,10 @@ class Mod(commands.Cog):
         if word is None:
             return await ctx.send("You need to specify a word to remove from the blacklist")
 
-        global cnx
-        global cursor
-        try:
-            cnx = mysql.connector.connect(
-                host='192.168.86.78',
-                user='Admin',
-                password='Shellshocker93!',
-                database=f"{ctx.guild.id}"
-            )
-            # exception occurred
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print(f'\033[1;31m Something is wrong with your user name or password')
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print(f'\033[1;31m Database does not exist')
-            else:
-                print(f'\033[1;31m {err}')
-        if cnx.is_connected():
-            cursor = cnx.cursor()
-            cursor.execute("select database();")
-            record = cursor.fetchone()
-            # print(f'\033[1;32m You\'re connected to database: \033[3;34m', record)
-        words = word
-        cursor.execute(f'''DELETE FROM blacklist WHERE word = "{words}"''')
-        cnx.commit()
+        with Session(engine)as session:
+            session.qeury(BlackList).filter_by(Word=word).delete(synchronize_session=False)
+            session.commit()
+            session.close()
         await ctx.send(f'Removed "{word}" from the blacklist', delete_after=23)
 
 

@@ -60,9 +60,9 @@ class Defcon(commands.Cog):
     async def disable_defcon(self, ctx):
         self.defcon_active = False
         await ctx.send(embed=success(
-                f"Successfully deactivated DEFCON.\n"
-                f"Kicked user count: {self._kicked_while_defcon_was_active}"
-            )
+            f"Successfully deactivated DEFCON.\n"
+            f"Kicked user count: {self._kicked_while_defcon_was_active}"
+        )
         )
         self._kicked_while_defcon_was_active = 0
 
