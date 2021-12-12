@@ -8,12 +8,11 @@ import discord
 import sentry_sdk
 import yaml
 from discord.ext import commands
-from models import GuildConfig, WelcomeConfig, LeaveConfig
+
 from sqlalchemy import *
 from sqlalchemy.orm import Session
 from sqlalchemy_utils import database_exists, create_database
 
-from cogs.help import send_embed
 from utils.db_tools import ServerList, Users, Stats, Config, BlackList, Mutes
 
 # Sentry error reporting
@@ -89,7 +88,6 @@ async def get_prefix(bot: commands.Bot, message: discord.Message):
             GuildData = session.query(ServerList).filter_by(ServerID=message.guild.id).first()
             return GuildData.Prefix
 
-
 bot = commands.Bot(command_prefix=get_prefix, intents=intents)
 
 bot.remove_command('help')
@@ -111,7 +109,6 @@ async def on_ready():
     await bot.change_presence(status=config_activity, activity=activity)
 
     async for guild in bot.fetch_guilds():
-
         memberList = []
         channelList = await guild.fetch_channels()
         async for member in guild.fetch_members():
@@ -195,200 +192,6 @@ async def prefix(ctx: commands.Context, *, _prefix: typing.Optional[str] = None)
             session.commit()
             session.close()
     return await ctx.send(f"set the prefix for this server to '{_prefix}'")
-
-
-@bot.event
-async def on_guild_join(guild: discord.Guild):
-    new_config = GuildConfig(ID=guild.id)
-    await new_config.save()
-
-
-@bot.event
-async def on_member_join(member: discord.Member):
-    welcome_config = await WelcomeConfig.filter(ID=member.guild.id).get_or_none()
-    config1 = await GuildConfig.filter(ID=member.guild.id).get_or_none()
-    if not config:
-        return
-
-    if config.welcome_enabled:
-        # welcome messages are enabled
-        emb = discord.Embed(title='Welcome', color=discord.Color.dark_gold())
-        emb.set_image(url=member.avatar_url, inline=True)
-        emb.description(welcome_config.message.format(member.mention), inline=True)
-
-        send_channel = discord.utils.get(member.guild.channels, id=welcome_config.channel_id)
-        await send_channel.send(embed=emb)
-
-
-@bot.event
-async def on_member_leave(member: discord.Member):
-    leave_config = await LeaveConfig.filter(ID=member.guild.id).get_or_none()
-    config1 = await GuildConfig.filter(ID=member.guild.id).get_or_none()
-    if not config1:
-        return
-
-    if config1.leave_enabled:
-        # welcome messages are enabled
-        emb = discord.Embed(title='Welcome', color=discord.Color.dark_gold())
-        emb.set_image(url=member.avatar_url, inline=True)
-        emb.description(leave_config.message.format(member.mention), inline=True)
-
-        send_channel = discord.utils.get(member.guild.channels, id=leave_config.channel_id)
-        await send_channel.send(embed=emb)
-
-
-@bot.command()
-@commands.has_guild_permissions(manage_guild=True)
-async def welcome(ctx: commands.Context):
-    """
-    Not for use utility
-    """
-    config1 = await GuildConfig.filter(ID=ctx.guild.id).get_or_none()
-    welcome_config = await WelcomeConfig.filter(ID=ctx.guild.id).get_or_none()
-
-    if config1.welcome_enabled:
-        welcome_channel = discord.utils.get(ctx.channels, id=welcome_config.channel_id)
-        return await ctx.send(
-            f"welcome messages are ***enabled*** in this guild. All member join events will be sent to {welcome_channel.mention}")
-    else:
-        return await ctx.send(f"Welcome messages are not enabled for {ctx.guild.name}. To enable please")
-
-
-@bot.command()
-@commands.has_guild_permissions(manage_guild=True)
-async def SetWelcome(ctx: commands.Context):
-    """
-    Allows you to configure the welcome message for your server
-    """
-
-    async def ask_welcome_message():
-        try:
-            msg: discord.Message = await bot.wait_for(
-                "message", check=lambda x: x.author.id == ctx.author.id,
-                timeout=20
-            )
-            return commands.TextChannelConverter().convert(ctx, msg.content)
-
-        except commands.errors.ChannelNotFound as e:
-            await ctx.send(f"Invaild Channel '{e.argument}'. Please enter a channel name again.")
-            return await ask_welcome_message()
-
-    await ctx.send("Please enter the channel where all welcome messages will be sent.")
-    channel = await ask_welcome_message()
-
-    emb = discord.Embed(title='Welcome Messages', color=discord.Color.dark_gold(),
-                        description="Please send your welcome message Below. Use '{}' where you want to mention the user."
-                                    f':smiley:\n')
-
-    await send_embed(ctx, emb)
-
-    welcome_msg = (await bot.wait_for(
-        "message", check=lambda x: x.author.id == ctx.author.id,
-        timeout=20
-    )).content
-
-    config1 = await GuildConfig.filter(ID=ctx.guild.id).get_or_none()
-    welcome_config = await WelcomeConfig.filter(ID=ctx.guild.id).get_or_none()
-
-    config1.welcome_enabled = True
-    await config1.save()
-
-    if not welcome_config:
-        new_welcome_config = WelcomeConfig(ID=ctx.guild.id, channel_id=channel.id, message=welcome_msg)
-        await new_welcome_config.save()
-        emb = discord.Embed(title='Welcome Messages', color=discord.Color.dark_gold(),
-                            description=f'A new config was generated for your server. '
-                                        f'You Have enabled welcome Messages.'
-                                        f'All Member join events will be sent to {channel.metion}'
-                                        f':smiley:\n')
-        await send_embed(ctx, emb)
-    else:
-        welcome_config.channel_id = channel.id
-        welcome_config.message = welcome_msg
-        await welcome_config.save()
-        emb = discord.Embed(title='Welcome Messages', color=discord.Color.dark_gold(),
-                            description=f'You Have Updated W elcome Config.'
-                                        f'All Member join events will be sent to {channel.metion}'
-                                        f':smiley:\n')
-        await send_embed(ctx, emb)
-
-
-@bot.command()
-@commands.has_guild_permissions(manage_guild=True)
-async def leave(ctx: commands.Context):
-    """
-    Not for use utility
-    """
-    welcome_config = await WelcomeConfig.filter(ID=ctx.guild.id).get_or_none()
-    config1 = await GuildConfig.filter(ID=ctx.guild.id).get_or_none()
-    leave_config = await LeaveConfig.filter(ID=ctx.guild.id).get_or_none()
-    welcome_channel = welcome_config.channel_id
-
-    if config1.leave_enabled:
-        leave_channel = discord.utils.get(ctx.channels, id=leave_config.channel_id)
-        return await ctx.send(
-            f"welcome messages are ***enabled*** in this guild. All member join events will be sent to {welcome_channel.mention}")
-    else:
-        return await ctx.send(f"Welcome messages are not enabled for {ctx.guild.name}. To enable please")
-
-
-@bot.command()
-@commands.has_guild_permissions(manage_guild=True)
-async def setleave(ctx: commands.Context):
-    """
-    allows you to set the Leave message for your server
-    """
-
-    async def ask_leave_message():
-        try:
-            msg: discord.Message = await bot.wait_for(
-                "message", check=lambda x: x.authour.id == ctx.author.id,
-                timeout=20
-            )
-            return commands.TextChannelConverter().convert(ctx, msg.content)
-
-        except commands.errors.ChannelNotFound as e:
-            await ctx.send(f"Invaild Channel '{e.argument}'. Please enter a channel name again.")
-            return await ask_leave_message()
-
-    await ctx.send("Please enter the channel where all welcome messages will be sent.")
-    channel = await ask_leave_message()
-
-    emb = discord.Embed(title='Leave Messages', color=discord.Color.dark_gold(),
-                        description="Please send your Leave message Below. Use '{}' where you want to mention the user."
-                                    f':smiley:\n')
-
-    await send_embed(ctx, emb)
-
-    welcome_msg = (await bot.wait_for(
-        "message", check=lambda x: x.authour.id == ctx.author.id,
-        timeout=20
-    )).content
-
-    config1 = await GuildConfig.filter(ID=ctx.guild.id).get_or_none()
-    leave_config = await LeaveConfig.filter(ID=ctx.guild.id).get_or_none()
-
-    config1.welcome_enabled = True
-    await config1.save()
-
-    if not leave_config:
-        new_leave_config = LeaveConfig(ID=ctx.guild.id, channel_id=channel.id, message=welcome_msg)
-        await new_leave_config.save()
-        emb = discord.Embed(title='Leave Messages', color=discord.Color.dark_gold(),
-                            description=f'A new config was generated for your server. '
-                                        f'You Have enabled Leave Messages.'
-                                        f'All Member Leave events will be sent to {channel.metion}'
-                                        f':smiley:\n')
-        await send_embed(ctx, emb)
-    else:
-        leave_config.channel_id = channel.id
-        leave_config.message = welcome_msg
-        await leave_config.save()
-        emb = discord.Embed(title='Leave Messages', color=discord.Color.dark_gold(),
-                            description=f'You Have Updated Leave Config.'
-                                        f'All Member leave events will be sent to {channel.metion}'
-                                        f':smiley:\n')
-        await send_embed(ctx, emb)
 
 
 bot.run(TOKEN)
