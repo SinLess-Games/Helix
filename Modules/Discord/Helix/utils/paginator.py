@@ -1,14 +1,11 @@
-import asyncio
-import discord
-from discord.ext.commands import Paginator as CommandPaginator
-from discord.ext import menus
-from typing import List, Union
 from asyncio import TimeoutError
-from discord.abc import Messageable
+from typing import List, Union
+
 from discord import ClientUser, User, Member, HTTPException, Embed
+from discord.abc import Messageable
 from discord.ext import commands
 
-from utils.embed_handler import info
+from Helix.utils.embed_handler import info
 
 
 class Paginator:
@@ -156,9 +153,9 @@ class Paginator:
     async def _start_listener(self, author: Union[User, Member], bot_reference):
         def react_check(reaction_, user_):
             return (
-                str(reaction_) in self.PAGINATION_EMOJIS and
-                user_.id == author.id and
-                reaction_.message.id == self._message.id
+                    str(reaction_) in self.PAGINATION_EMOJIS and
+                    user_.id == author.id and
+                    reaction_.message.id == self._message.id
             )
 
         while True:
@@ -225,6 +222,7 @@ class EmbedPaginator(Paginator):
 
 class ListPaginator:
     """Constructs a Paginator when provided a list of Embeds/Messages"""
+
     def __init__(
             self, ctx: commands.Context, page_list,
             footer: bool = True,
@@ -257,7 +255,7 @@ class ListPaginator:
 
         if page != pages[-1]:
             current_page_index = pages.index(page)
-            next_page = pages[current_page_index+1]
+            next_page = pages[current_page_index + 1]
             return next_page
 
         return pages[-1]
@@ -267,7 +265,7 @@ class ListPaginator:
 
         if page != pages[0]:
             current_page_index = pages.index(page)
-            next_page = pages[current_page_index-1]
+            next_page = pages[current_page_index - 1]
             return next_page
 
         return pages[0]
@@ -278,7 +276,7 @@ class ListPaginator:
 
         if self.footer:
             for index, page in enumerate(pages):
-                page.set_footer(text=f"Page {index+1}/{len(pages)}", icon_url=self.footer_icon)
+                page.set_footer(text=f"Page {index + 1}/{len(pages)}", icon_url=self.footer_icon)
 
         embed = pages[0]
 

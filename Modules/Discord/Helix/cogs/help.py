@@ -1,14 +1,13 @@
+import logging
+
 import discord
 import yaml
-import logging
-from discord.ext import commands
 from discord.errors import Forbidden
-from constants import embed_space
-from utils.paginator import EmbedPaginator
-from utils.db_tools import ServerList
+from discord.ext import commands
 from sqlalchemy import *
 from sqlalchemy.orm import Session
 
+from Helix.utils.db_tools import ServerList
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +57,7 @@ class Help(commands.Cog):
         Shows all modules of that bot
         """
 
-        with open("Configs/config.yml", 'r') as i:
+        with open("./Helix/Configs/config.yml", 'r') as i:
             cfg = yaml.safe_load(i)
 
         # !SET THOSE VARIABLES TO MAKE THE COG FUNCTIONAL!

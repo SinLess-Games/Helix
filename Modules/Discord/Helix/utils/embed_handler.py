@@ -1,11 +1,11 @@
 import datetime
 from typing import Union
-from asyncpraw import models
 
+from asyncpraw import models
 from discord import Embed, Color, Member, User, Status, Message, TextChannel
 
-import constants
-from utils.misc import (
+from Helix import constants
+from Helix.utils.misc import (
     get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date
 )
 
@@ -205,7 +205,6 @@ def status_embed(ctx, member: Member) -> Embed:
         nick = constants.tick_no
 
     for activity in member.activities:
-
         clean_activity = format_activity(activity)
         activities += f"{clean_activity}\n"
 
@@ -354,7 +353,7 @@ def black_jack_embed(user: User, player, outcome: str = None, hidden: bool = Tru
 
 
 def project_embed(projects: dict, me):
-    desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)-1}\n"
+    desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects) - 1}\n"
     embed = simple_embed(title="Tortoise Community", message=desc,
                          color=get_top_role_color(member=me, fallback_color=Color.light_grey()))
     embed.set_thumbnail(url=me.avatar_url)
@@ -369,7 +368,7 @@ def project_embed(projects: dict, me):
         embed.add_field(name=f"\n{constants.embed_space}\n{constants.git_repo_emoji} {project.name}",
                         value=f"• [repository]({project.link})\n"
                               f"• [web]({project.web_url})\n"
-                              f"• [issues]({project.link+'/issues'})",
+                              f"• [issues]({project.link + '/issues'})",
                         inline=False)
         embed.add_field(name="Commits", value=f"{constants.git_commit_emoji} {project.commits}")
         embed.add_field(name="Stars", value=f"{constants.git_start_emoji} {project.stars}")

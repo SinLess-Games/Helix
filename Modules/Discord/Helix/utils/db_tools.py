@@ -1,18 +1,15 @@
 import sqlalchemy
 import yaml
-import pymysql
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy_utils import database_exists, create_database
 
 # Opens the config and reads it, no need for changes unless you'd like to change the library (no need to do so unless
 # having issues with ruamel)
-with open("Configs/config.yml", "r", encoding="utf-8") as file:
+with open("Helix/Configs/config.yml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
 _Version_ = sqlalchemy.__version__
 Base = declarative_base()
-
 
 metadata_obj = MetaData()
 
@@ -23,7 +20,6 @@ class ServerList(Base):
     # Table name
     __tablename__ = "ServerList"
     metadata_obj
-
 
     # Columns (name = construction)
     rID = Column(Integer, primary_key=True, autoincrement=True)
@@ -45,7 +41,6 @@ class Users(Base):  # tasks.py handles this table
     __tablename__ = "Users"
     metadata_obj
 
-
     rID = Column(BigInteger, primary_key=True, autoincrement=True)
     UserID = Column(BigInteger)
     DisplayName = Column(BLOB)
@@ -63,7 +58,6 @@ class Users(Base):  # tasks.py handles this table
 class Stats(Base):  # tasks.py handles this table
     __tablename__ = "Stats"
     metadata_obj
-
 
     ID = Column(Integer, primary_key=True, autoincrement=True)
     Days = Column(Integer, autoincrement=True)
@@ -85,7 +79,6 @@ class Config(Base):
     __tablename__ = "Config"
     metadata_obj
 
-
     ID = Column(BigInteger, primary_key=True, autoincrement=True)
     WhiteListed = Column(String(200))
     UniqueRoles = Column(String(200))
@@ -104,7 +97,6 @@ class BlackList(Base):  # mod.py handles this table
     __tablename__ = "BlackList"
     metadata_obj
 
-
     ID = Column(Integer, primary_key=True, autoincrement=True)
     Word = Column(String(200))
     AddDate = Column(DATE)
@@ -116,10 +108,8 @@ class Mutes(Base):
     __tablename__ = "Mutes"
     metadata_obj
 
-
     ID = Column(Integer, primary_key=True, autoincrement=True)
     UserID = Column(Integer)
     UserName = Column(String(200))
     Roles = Column(String(200))
     EndTime = Column(DATETIME)
-

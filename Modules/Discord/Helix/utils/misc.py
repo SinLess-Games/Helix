@@ -1,10 +1,7 @@
-import logging
 import datetime
+import logging
 
 from discord import Member, Activity, Game, Spotify, CustomActivity, Status
-
-import constants
-
 
 logger = logging.getLogger(__name__)
 

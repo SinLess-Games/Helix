@@ -1,16 +1,15 @@
-import os
 import json
 import logging
+import os
 from asyncio import AbstractEventLoop
 from datetime import datetime, timezone
 from typing import Optional, List, Union
 
 import aiohttp
-from dotenv import load_dotenv
 from discord import Member, User, Message
+from dotenv import load_dotenv
 
-from constants import SuggestionStatus, SinLess_guild_id, github_repo_stats_endpoint
-
+from Helix.constants import SuggestionStatus, SinLess_guild_id, github_repo_stats_endpoint
 
 load_dotenv()  # TODO why here also? in main too
 logger = logging.getLogger(__name__)
@@ -18,11 +17,12 @@ logger = logging.getLogger(__name__)
 
 class ResponseCodeError(ValueError):
     """Raised when a non-OK HTTP response is received."""
+
     def __init__(
-        self,
-        response: aiohttp.ClientResponse,
-        response_json: Optional[dict] = None,
-        response_text: str = ""
+            self,
+            response: aiohttp.ClientResponse,
+            response_json: Optional[dict] = None,
+            response_text: str = ""
     ):
         self.status = response.status
         self.response_json = response_json or {}

@@ -1,16 +1,17 @@
+from datetime import datetime
+
 import yaml
 from discord import Embed
 from discord.ext import commands
-from datetime import datetime
-from sqlalchemy.orm import Session
 from sqlalchemy import *
-from utils.db_tools import ServerList, Users, Stats, Config, BlackList, Mutes
+from sqlalchemy.orm import Session
+
+from Helix.utils.db_tools import BlackList
 
 # Opens the config and reads it, no need for changes unless you'd like to change the library (no need to do so unless
 # having issues with ruamel)
-with open("Configs/config.yml", "r", encoding="utf-8") as file:
+with open("Helix/Configs/config.yml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
-
 
 host = config['SQL_Host']
 user = config['SQL_UserName']
@@ -47,7 +48,8 @@ class Mod(commands.Cog):
                 await message.delete()
                 channel = message.channel
                 await channel.send(
-                    "Please refrain from using blacklisted words. To find out what words are blacklisted use H!blacklist", delete_after=23)
+                    "Please refrain from using blacklisted words. To find out what words are blacklisted use H!blacklist",
+                    delete_after=23)
 
                 return await message.author.send(
                     f'''Your message "{message.content}" was removed for containing the blacklisted word "{word}"''')
@@ -96,7 +98,7 @@ class Mod(commands.Cog):
         if word is None:
             return await ctx.send("You need to specify a word to remove from the blacklist")
 
-        with Session(engine)as session:
+        with Session(engine) as session:
             session.qeury(BlackList).filter_by(Word=word).delete(synchronize_session=False)
             session.commit()
             session.close()

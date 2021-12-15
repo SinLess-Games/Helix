@@ -1,6 +1,16 @@
-from aenum import Enum, NoAlias
+import os.path
+import subprocess
 
+from aenum import Enum, NoAlias
 from discord import Color
+
+try:
+    VERSION = subprocess.check_output(["git", "describe", "--tags", "--always"]).decode('ascii').strip()
+except Exception:
+    VERSION = 'version_unknown'
+
+AUDIO_CACHE_PATH = os.path.join(os.getcwd(), 'audio_cache')
+DISCORD_MSG_CHAR_LIMIT = 2000
 
 SinLess_guild_id = 765715864656936981
 website_url = ""
@@ -13,7 +23,6 @@ Helix_paste_endpoint = ""
 line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 github_repo_stats_endpoint = "https://api.github.com/repos/SinLess-Games/"
 project_url = "https://github.com/SinLess-Games/Helix/projects/5"
-
 
 # Channel IDs
 welcome_channel_id = ''
@@ -47,18 +56,18 @@ admin_role = ''
 new_member_role = ''
 
 self_assignable_roles = {
-    915075587972927529: 589128905290547217,     # Python
-    915075639558668289: 589129320480636986,     # Javascript
-    915075723277008927: 591254311162347561,     # HTML/CSS
-    915075796585041951: 589131126619111424,     # SQL
-    915075807184031814: 589131022520811523,     # C
-    915075858799136778: 589129873809735700,     # C++
-    915075894773682197: 589130125208190991,     # C#
-    915075923395608608: 589129070609039454,     # Java
-    915075953204551740: 589129583375286415,     # R
-    915076028332933190: 610834658267103262,     # events
-    915076062361296897: 603157798225838101,     # announcements
-    915076104149139457: 781210603997757471      # challenges
+    915075587972927529: 589128905290547217,  # Python
+    915075639558668289: 589129320480636986,  # Javascript
+    915075723277008927: 591254311162347561,  # HTML/CSS
+    915075796585041951: 589131126619111424,  # SQL
+    915075807184031814: 589131022520811523,  # C
+    915075858799136778: 589129873809735700,  # C++
+    915075894773682197: 589130125208190991,  # C#
+    915075923395608608: 589129070609039454,  # Java
+    915075953204551740: 589129583375286415,  # R
+    915076028332933190: 610834658267103262,  # events
+    915076062361296897: 603157798225838101,  # announcements
+    915076104149139457: 781210603997757471  # challenges
 }
 
 # Badges
