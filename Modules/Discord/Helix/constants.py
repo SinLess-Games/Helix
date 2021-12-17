@@ -1,16 +1,10 @@
 import os.path
-import subprocess
 
 from aenum import Enum, NoAlias
 from discord import Color
 
-try:
-    VERSION = subprocess.check_output(["git", "describe", "--tags", "--always"]).decode('ascii').strip()
-except Exception:
-    VERSION = 'version_unknown'
-
 AUDIO_CACHE_PATH = os.path.join(os.getcwd(), 'audio_cache')
-DISCORD_MSG_CHAR_LIMIT = 2000
+DISCORD_MSG_CHAR_LIMIT = 4000
 
 SinLess_guild_id = 765715864656936981
 website_url = ""

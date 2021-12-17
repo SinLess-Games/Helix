@@ -1,21 +1,12 @@
 from datetime import datetime
 
-import yaml
 from discord import Embed
 from discord.ext import commands
 from sqlalchemy import *
 from sqlalchemy.orm import Session
 
+from Helix.utils.config import Config, ConfigDefaults
 from Helix.utils.db_tools import BlackList
-
-# Opens the config and reads it, no need for changes unless you'd like to change the library (no need to do so unless
-# having issues with ruamel)
-with open("Helix/Configs/config.yml", "r", encoding="utf-8") as file:
-    config = yaml.safe_load(file)
-
-host = config['SQL_Host']
-user = config['SQL_UserName']
-passwd = config['SQL_Password']
 
 
 class Mod(commands.Cog):
@@ -23,13 +14,18 @@ class Mod(commands.Cog):
     This module handles blacklists of servers and moderates channels based on black listed words.
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, config_file=None):
         self.bot = bot
+        if config_file is None:
+            config_file = ConfigDefaults.Config_file
+        self.config = Config(config_file)
 
     @commands.Cog.listener()
     async def on_message(self, message):
         db = message.guild.id
-        engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{db}', echo=False)
+        engine = create_engine(
+            f'mysql+pymysql://{self.config.sql_user}:{self.config.sql_passwd}@{self.config.sql_host}/{self.config.sql_ddb}',
+            echo=False)
         if message.author.id == 852957689905676368:
             return
         if message.content.startswith("H!"):

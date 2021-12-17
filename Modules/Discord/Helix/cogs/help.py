@@ -50,6 +50,16 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def _gen_embed(self):
+        """Provides a basic template for embeds"""
+        e = discord.Embed()
+        e.colour = 7506394
+        e.set_footer(text='SinLess-Games/Helix ({})'.format(self.VERSION),
+                     icon_url='https://imgur.com/a/wdNvSfZ')
+        e.set_author(name=self.bot.name, url='https://github.com/sinLess-Games/Helix',
+                     icon_url=self.bot.avatar_url)
+        return e
+
     @commands.command()
     # @commands.bot_has_permissions(add_reactions=True,embed_links=True)
     async def help(self, ctx, *input):
@@ -75,8 +85,8 @@ class Help(commands.Cog):
         # print(f"prefix is {prefix}")
 
         # setting owner name - if you don't wanna be mentioned remove line 49-60 and adjust help text (line 88)
-        owner = cfg['OWNER_NAME']
-        owner_name = cfg['OWNER_ID']
+        owner = cfg['Owner_Name']
+        owner_name = cfg['bot_owner_id']
 
         valid_user = False
 
@@ -90,9 +100,7 @@ class Help(commands.Cog):
             except AttributeError as e:
                 # starting to build embed
                 return
-            emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
-                                description=f'Use `{prefix}help <module>` to gain more information about that module '
-                                            f':smiley:\n')
+            emb = self._gen_embed()
 
             # adding 'list' of cogs to embed
             emb.add_field(name='Modules', value="Below are the modules within HeliX", inline=False)

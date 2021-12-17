@@ -10,6 +10,8 @@ import discord
 import wavelink
 from discord.ext import commands
 
+from Helix.utils.config import Config, ConfigDefaults
+
 URL_REGEX = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 LYRICS_URL = "https://some-random-api.ml/lyrics?title="
 HZ_BANDS = (20, 40, 63, 100, 150, 250, 400, 450, 630, 1000, 1600, 2500, 4000, 10000, 16000)
@@ -263,10 +265,15 @@ class Player(wavelink.Player):
 
 
 class Music(commands.Cog, wavelink.WavelinkMixin):
-    def __init__(self, bot):
+    def __init__(self, bot, config_file=None):
         self.bot = bot
         self.wavelink = wavelink.Client(bot=bot)
         self.bot.loop.create_task(self.start_nodes())
+
+        if config_file is None:
+            config_file = ConfigDefaults.Config_file
+
+        self.config = Config(config_file)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
@@ -299,12 +306,12 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         nodes = {
             "MAIN": {
-                "host": "127.0.0.1",
-                "port": 2333,
-                "rest_uri": "http://127.0.0.1:2333",
-                "password": "Shellshocker93!",
-                "identifier": "MAIN",
-                "region": "US",
+                "host": self.config.ll_host,
+                "port": self.config.ll_port,
+                "rest_uri": self.config.ll_resturi,
+                "password": self.config.ll_password,
+                "identifier": self.config.ll_identifier,
+                "region": self.config.ll_region,
             }
         }
 
@@ -349,6 +356,29 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
             await player.set_pause(False)
             await ctx.send("Playback resumed.")
+
+        else:
+            query = query.strip("<>")
+            if not re.match(URL_REGEX, query):
+                query = f"ytsearch:{query}"
+
+            await player.add_tracks(ctx, await self.wavelink.get_tracks(query))
+
+    @commands.command(name='autoplaylist')
+    async def auto_playlist_cmd(self, ctx, *, query: t.Optional[str]):
+        content = []
+        with open('Helix/Configs/autoplaylist.txt', 'r') as file:
+            for line in file.readlines():
+                content.append(line)
+
+        player = self.get_player(content)
+
+        if not player.is_connected:
+            await player.connect()
+
+        if query is None:
+            if player.queue.is_empty:
+                raise QueueIsEmpty
 
         else:
             query = query.strip("<>")

@@ -1,12 +1,6 @@
 import sqlalchemy
-import yaml
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
-
-# Opens the config and reads it, no need for changes unless you'd like to change the library (no need to do so unless
-# having issues with ruamel)
-with open("Helix/Configs/config.yml", "r", encoding="utf-8") as file:
-    config = yaml.safe_load(file)
 
 _Version_ = sqlalchemy.__version__
 Base = declarative_base()
@@ -75,7 +69,7 @@ class Stats(Base):  # tasks.py handles this table
 
 # Config table Construction
 # TODO: Go through code verify location where each column is used
-class Config(Base):
+class ServConfig(Base):
     __tablename__ = "Config"
     metadata_obj
 

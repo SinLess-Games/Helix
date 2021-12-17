@@ -5,7 +5,7 @@ import time
 
 import aiohttp
 
-from exceptions import SpotifyError
+from Helix.utils.exceptions import SpotifyError
 
 log = logging.getLogger(__name__)
 

@@ -1,4 +1,5 @@
 import os
+import threading
 
 from Helix.bot import Helix
 
@@ -12,4 +13,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    threading.Thread(target=main()).start()
