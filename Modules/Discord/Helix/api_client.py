@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 from Helix.constants import SuggestionStatus, SinLess_guild_id, github_repo_stats_endpoint
 
-load_dotenv()  # TODO why here also? in main too
+load_dotenv()  # git TODO why here also? in main too
 logger = logging.getLogger(__name__)
 
 

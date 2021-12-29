@@ -1,41 +1,48 @@
-import logging
 from datetime import datetime
 
 import discord
-import yaml
 from discord.ext import commands
 from discord.ext import tasks
 from sqlalchemy import *
 from sqlalchemy.orm import Session
+from sqlalchemy_utils import database_exists, create_database
 
-from Helix.utils.db_tools import Stats, Users, ServerList
-
-# Open Config file for TOKEN
-with open("Helix/Configs/config.yml", 'r') as i:
-    config = yaml.safe_load(i)
-
-VERSION = config['Version']
-logging.info(f"HeliX discord version: " + str(VERSION))
-OWNER_NAME = config['Owner_Name']
-OWNER_ID = config['bot_owner_id']
-
-with open("Helix/Configs/config.yml", 'r') as i:
-    cfg = yaml.safe_load(i)
-
-# !SET THOSE VARIABLES TO MAKE THE COG FUNCTIONAL!
-version = cfg['Version']
-host = cfg['SQL_Host']
-user = cfg['SQL_UserName']
-passwd = cfg['SQL_Password']
-db = cfg['DefaultDatabase']
+from Helix.utils.config import Config, ConfigDefaults
+from Helix.utils.db_tools import ServerList, Users, Stats
 
 
-class tasks(commands.Cog):
+class Task_Loop(commands.Cog):
 
-    def __init__(self, client):
+    def __init__(self, client, config_file=None):
+        if config_file is None:
+            config_file = ConfigDefaults.Config_file
+
+        self.config = Config(config_file)
         self.client = client
         self.index = 0
-        self.update.start()
+        self.update_24.start()
+
+        self.VERSION = self.config.version
+        self.OWNER_ID = self.config.owner_id
+        self.prefix = self.config.prefix
+        self.sql_host = self.config.sql_host
+        self.sql_user = self.config.sql_user
+        self.sql_passwd = self.config.sql_passwd
+        self.sql_ddb = self.config.sql_ddb
+
+        self.exit_signal = None
+        self.init_ok = False
+        self.cached_app_info = None
+        self.last_status = None
+
+        # SqlAlchemy engine construction
+        self.sql_engine = create_engine(
+            f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}', echo=False)
+        if not database_exists(self.sql_engine.url):
+            create_database(self.sql_engine.url)
+        else:
+            # If DB exists prints database_exists
+            print(database_exists(self.sql_engine.url))
 
     @commands.Cog.listener()
     async def on_guild_update(self):
@@ -50,7 +57,7 @@ class tasks(commands.Cog):
     @commands.Cog.listener()
     async def on_member_ban(self, guild):
         id = guild.id
-        engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{id}', echo=False)
+        engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{id}', echo=False)
         dt = datetime.today()
         date = dt
         with Session(engine) as session:
@@ -90,12 +97,14 @@ class tasks(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self):
         async for guild in self.client.fetch_guilds():
-            Engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{db}', echo=False)
+            Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
+                                   echo=False)
             dt = datetime.today()
             date = dt
 
             channels = await guild.fetch_channels()
             members = await guild.fetch_members().flatten()
+            server = guild.name
             channel_count = len(channels)
             members_count = len(members)
             # add data to stats table
@@ -106,21 +115,31 @@ class tasks(commands.Cog):
 
             with Session(Engine) as session:
                 serv = ServerList()
+                Guild_Exists = session.query(ServerList).filter_by(ServerID=guild.id).first()
+                if not Guild_Exists:
+                    serv.ServerID = guild.id
+                    serv.ServerName = server.encode(encoding='UTF-8')
+                    serv.MemberCount = members
+                    serv.ChannelCount = channels
+                    serv.LastUpdate = datetime.now()
+                    session.add(serv)
+                    session.commit()
+                    session.close()
 
-                serv.ServerID = guild.id
-                serv.ServerName = guild.name
-                serv.MemberCount = members_count
-                serv.ChannelCount = channel_count
-                serv.LastUpdate = date
-
-                session.add(serv)
-                session.commit()
-                session.close()
+                else:
+                    session.query(ServerList).filter_by(ServerID=guild.id).update({
+                        "ServerName": guild.name,
+                        "MemberCount": members,
+                        "ChannelCount": channels,
+                        "LastUpdate": datetime.now()
+                    }, synchronize_session="fetch")
+                    session.commit()
+                    session.close()
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         id = message.guild.id
-        engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{id}', echo=False)
+        engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{id}', echo=False)
         dt = datetime.today()
         date = dt
         with Session(engine) as session:
@@ -155,7 +174,7 @@ class tasks(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, message):
         id = message.guild.id
-        engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{id}', echo=False)
+        engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{id}', echo=False)
         dt = datetime.today()
         date = dt
         with Session(engine) as session:
@@ -189,11 +208,13 @@ class tasks(commands.Cog):
 
     @tasks.loop(hours=24)
     # Runs every 24 hours to update tables
-    async def update(self):
+    async def update_24(self):
         print("Updating...")
         async for guild in self.client.fetch_guilds():
-            engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{guild.id}', echo=False)
-            Engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{db}', echo=False)
+            engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{guild.id}',
+                                   echo=False)
+            Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
+                                   echo=False)
             dt = datetime.today()
             date = dt
 
@@ -259,29 +280,31 @@ class tasks(commands.Cog):
                     session.close()
 
             async for member in guild.fetch_members():
-                member_id = member.id
-                displayName = member.display_name
-                discriminator = member.discriminator
-                mention = member.mention
-                roles = str(member.roles)
+                member_id = member.id  # Integer
+                displayName = member.display_name  # String
+                discriminator = member.discriminator  # String
+                mention = member.mention  # String
+                roles = str(member.roles)  # List
+                server = guild.name  # String
                 # update existing
                 User = discord.Member
-                dm = User.dm_channel
+                dm = str(User.dm_channel)
                 dt = datetime.today()
                 date = dt
-                engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{guild.id}', echo=False)
-                with Session(engine) as session:
+                engine1 = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{guild.id}',
+                                        echo=False)
+                with Session(engine1) as session:
                     usr = Users()
 
                     UserExists = session.query(Users).filter_by(UserID=member.id).first()
                     if not UserExists:
                         usr.UserID = member_id
-                        usr.DisplayName = displayName
-                        usr.Discriminator = discriminator
-                        usr.Mention = mention
-                        usr.DMChannel = dm
-                        usr.Roles = roles
-                        usr.Server = guild.name
+                        usr.DisplayName = displayName.encode(encoding='UTF-8')
+                        usr.Discriminator = discriminator.encode(encoding='UTF-8')
+                        usr.Mention = mention.encode(encoding='UTF-8')
+                        usr.DMChannel = dm.encode(encoding='UTF-8')
+                        usr.Roles = roles.encode(encoding='UTF-8')  # TODO: needs fixed, returns none type list
+                        usr.Server = server.encode(encoding='UTF-8')
                         usr.LastUpdate = date
                         session.add(usr)
                         session.commit()
@@ -289,19 +312,19 @@ class tasks(commands.Cog):
 
                     else:
                         session.query(Users).filter_by(UserID=member.id).update({
-                            "DisplayName": displayName,
-                            "Discriminator": discriminator,
-                            "Mention": mention,
-                            "DMChannel": dm,
-                            "Roles": roles,
+                            "DisplayName": displayName.encode(encoding='UTF-8'),
+                            "Discriminator": discriminator.encode(encoding='UTF-8'),
+                            "Mention": mention.encode(encoding='UTF-8'),
+                            "DMChannel": dm.encode(encoding='UTF-8'),
+                            "Roles": roles.encode(encoding='UTF-8'),
                             "PostCount": 0,
                             "LastUpdate": date
                         }, synchronize_session="fetch")
                         session.commit()
                         session.close()
 
-                print("Adding users to: " + f"{guild.id}")
+                print(f"Adding users to: {guild.name} database; DBid: {guild.id}")
 
 
 def setup(client):
-    client.add_cog(tasks(client))
+    client.add_cog(Task_Loop(client))

@@ -14,24 +14,17 @@ import discord
 import sentry_sdk
 from discord.ext import commands
 from sqlalchemy import *
-from sqlalchemy.orm import Session
 from sqlalchemy_utils import database_exists, create_database
 
 from Helix.spotify import Spotify
 from Helix.util import load_file
 from Helix.utils import exceptions
 from Helix.utils.config import Config, ConfigDefaults
-from Helix.utils.db_tools import ServerList, Users, Stats, BlackList, Mutes, ServConfig
+from Helix.utils.db_tools import Users, Stats, BlackList, Mutes, ServConfig, ServerList
 from Helix.utils.opus_loader import load_opus_lib
 
 # Discord Intents
-intents = discord.Intents.default()
-intents.typing = True
-intents.presences = True
-intents.members = True
-intents.messages = True
-guild_subscriptions = True
-fetch_offline_members = True
+intents = discord.Intents.all()
 
 # Load opus library
 load_opus_lib()
@@ -234,7 +227,7 @@ class Helix(commands.AutoShardedBot):
         """Provides a basic template for embeds"""
         e = discord.Embed()
         e.colour = 7506394
-        e.set_footer(text='Just-Some-Bots/MusicBot ({})'.format(self.VERSION),
+        e.set_footer(text='Helix ({})'.format(self.VERSION),
                      icon_url='https://imgur.com/a/wdNvSfZ')
         e.set_author(name=self.user.name, url='https://github.com/SinLess-Games/Helix',
                      icon_url=self.user.avatar_url)
@@ -317,46 +310,12 @@ class Helix(commands.AutoShardedBot):
 
         await self.change_presence(status=config_activity, activity=activity)
 
+        # Builds databases and tables, do not move from here, This works here and not in cogs.
+        # TODO: find out if I can make it work in a cog, and if so how to.
         async for guild in self.fetch_guilds():
-            member_list = []
-            channel_list = await guild.fetch_channels()
-            async for member in guild.fetch_members():
-                member_list.append(member)
-            members = len(member_list)
-            # print("members: " + str(members))
-            channels = len(channel_list)
-            # print("channels: " + str(channels))
-
-            ServerList.__table__.create(bind=self.sql_engine, checkfirst=True)
-
-            # create server specific databases
-            with Session(self.sql_engine) as session:
-                serv = ServerList()
-
-                Guild_Exists = session.query(ServerList).filter_by(ServerID=guild.id).first()
-                if not Guild_Exists:
-                    serv.ServerID = guild.id
-                    serv.ServerName = guild.name
-                    serv.MemberCount = members
-                    serv.ChannelCount = channels
-                    serv.LastUpdate = datetime.now()
-                    session.add(serv)
-                    session.commit()
-                    session.close()
-
-                else:
-                    session.query(ServerList).filter_by(ServerID=guild.id).update({
-                        "ServerName": guild.id,
-                        "MemberCount": members,
-                        "ChannelCount": channels,
-                        "LastUpdate": datetime.now()
-                    }, synchronize_session="fetch")
-                    session.commit()
-                    session.close()
-
-        async for guild in self.fetch_guilds():
-            Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{guild.id}',
-                                   echo=False)
+            Engine = create_engine(
+                f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{guild.id}',
+                echo=False)
             if not database_exists(Engine.url):
                 create_database(Engine.url)
             else:
@@ -369,14 +328,14 @@ class Helix(commands.AutoShardedBot):
             bl = BlackList()
             mut = Mutes()
 
+            ServerList.__table__.create(bind=self.sql_engine, checkfirst=True)
+            BlackList.__table__.create(bind=self.sql_engine, checkfirst=True)
+
             Users.__table__.create(bind=Engine, checkfirst=True)
             Stats.__table__.create(bind=Engine, checkfirst=True)
             ServConfig.__table__.create(bind=Engine, checkfirst=True)
             BlackList.__table__.create(bind=Engine, checkfirst=True)
             Mutes.__table__.create(bind=Engine, checkfirst=True)
-
-            with Session(Engine) as session:
-                pass
 
 
 bot = Helix()

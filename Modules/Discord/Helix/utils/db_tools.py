@@ -13,7 +13,6 @@ metadata_obj = MetaData()
 class ServerList(Base):
     # Table name
     __tablename__ = "ServerList"
-    metadata_obj
 
     # Columns (name = construction)
     rID = Column(Integer, primary_key=True, autoincrement=True)
@@ -33,16 +32,15 @@ class ServerList(Base):
 # TODO: Go through code verify location where each column is used
 class Users(Base):  # tasks.py handles this table
     __tablename__ = "Users"
-    metadata_obj
 
     rID = Column(BigInteger, primary_key=True, autoincrement=True)
     UserID = Column(BigInteger)
     DisplayName = Column(BLOB)
-    Discriminator = Column(VARCHAR(50))
-    Mention = Column(VARCHAR(50))
-    DMChannel = Column(VARCHAR(50))
-    Roles = Column(String(500))
-    Server = Column(String(200))
+    Discriminator = Column(BigInteger)
+    Mention = Column(BLOB)
+    DMChannel = Column(BLOB)
+    Roles = Column(BLOB)
+    Server = Column(BLOB)
     PostCount = Column(Integer)
     LastUpdate = Column(DATE)
 
@@ -51,7 +49,6 @@ class Users(Base):  # tasks.py handles this table
 # TODO: Go through code verify location where each column is used
 class Stats(Base):  # tasks.py handles this table
     __tablename__ = "Stats"
-    metadata_obj
 
     ID = Column(Integer, primary_key=True, autoincrement=True)
     Days = Column(Integer, autoincrement=True)
@@ -71,7 +68,6 @@ class Stats(Base):  # tasks.py handles this table
 # TODO: Go through code verify location where each column is used
 class ServConfig(Base):
     __tablename__ = "Config"
-    metadata_obj
 
     ID = Column(BigInteger, primary_key=True, autoincrement=True)
     WhiteListed = Column(String(200))
@@ -89,7 +85,6 @@ class ServConfig(Base):
 # TODO: Go through code verify location where each column is used
 class BlackList(Base):  # mod.py handles this table
     __tablename__ = "BlackList"
-    metadata_obj
 
     ID = Column(Integer, primary_key=True, autoincrement=True)
     Word = Column(String(200))
@@ -100,7 +95,6 @@ class BlackList(Base):  # mod.py handles this table
 # TODO: Go through code verify location where each column is used
 class Mutes(Base):
     __tablename__ = "Mutes"
-    metadata_obj
 
     ID = Column(Integer, primary_key=True, autoincrement=True)
     UserID = Column(Integer)

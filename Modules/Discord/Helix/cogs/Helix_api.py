@@ -16,16 +16,16 @@ logger.setLevel(logging.DEBUG)
 class HelixAPI(commands.Cog):
     """Commands using Helix API"""
 
-    def __init__(self, bot):
-        self.bot: bot = bot
-        self.system_log_channel = bot.get_channel(constants.system_log_channel_id)
-        self.user_suggestions_channel = bot.get_channel(constants.suggestions_channel_id)
+    def __init__(self, client):
+        self.client: client = client
+        self.system_log_channel = client.get_channel(constants.system_log_channel_id)
+        self.user_suggestions_channel = client.get_channel(constants.suggestions_channel_id)
 
     @commands.command()
     @commands.check(check_if_it_is_Sinless_guild)
     async def is_verified(self, ctx, member: DatabaseMember):
         try:
-            response = await self.bot.api_client.is_verified(member)
+            response = await self.client.api_client.is_verified(member)
         except ResponseCodeError as e:
             msg = f"Something went wrong, got response status {e.status}.\nDoes the member exist?"
             await ctx.send(embed=failure(msg))
@@ -36,7 +36,7 @@ class HelixAPI(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     async def show_data(self, ctx, member: DatabaseMember):
         try:
-            data = await self.bot.api_client.get_member_data(member)
+            data = await self.client.api_client.get_member_data(member)
         except ResponseCodeError as e:
             msg = f"Something went wrong, got response status {e.status}.\nDoes the member exist?"
             await ctx.send(embed=failure(msg))
@@ -47,7 +47,7 @@ class HelixAPI(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member: Member):
         logger.debug(f"Member {member} left, updating database accordingly.")
-        await self.bot.api_client.member_left(member)
+        await self.client.api_client.member_left(member)
         await self.system_log_channel.send(embed=goodbye(f"{member} has left the Tortoise Community."))
 
     @commands.command()
@@ -85,7 +85,7 @@ class HelixAPI(commands.Cog):
         elif not msg.embeds or not msg.embeds[0].fields:
             return await ctx.send(embed=failure("Message is not in correct format."), delete_after=10)
 
-        api_data = await self.bot.api_client.get_suggestion(message_id)
+        api_data = await self.client.api_client.get_suggestion(message_id)
 
         msg_embed = msg.embeds[0]
         if status == constants.SuggestionStatus.denied:
@@ -111,13 +111,13 @@ class HelixAPI(commands.Cog):
         else:
             msg_embed.set_field_at(1, name=field_title, value=reason, inline=True)
 
-        await self.bot.api_client.edit_suggestion(message_id, status, reason)
+        await self.client.api_client.edit_suggestion(message_id, status, reason)
         await msg.edit(embed=msg_embed)
         await self._dm_member(api_data["author_id"], dm_embed)
 
     async def _dm_member(self, user_id, embed: Embed):
         try:
-            user = self.bot.get_user(user_id)
+            user = self.client.get_user(user_id)
             await user.send(embed=embed)
         except Forbidden:
             pass
@@ -130,9 +130,9 @@ class HelixAPI(commands.Cog):
         if msg is not None:
             await msg.delete()
 
-        await self.bot.api_client.delete_suggestion(message_id)
+        await self.client.api_client.delete_suggestion(message_id)
         await ctx.send(embed=success("Suggestion successfully deleted."), delete_after=5)
 
 
-def setup(bot):
-    bot.add_cog(HelixAPI(bot))
+def setup(client):
+    client.add_cog(HelixAPI(client))
