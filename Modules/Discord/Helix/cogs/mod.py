@@ -22,7 +22,6 @@ class Mod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        db = message.guild.id
         engine = create_engine(
             f'mysql+pymysql://{self.config.sql_user}:{self.config.sql_passwd}@{self.config.sql_host}/{self.config.sql_ddb}',
             echo=False)

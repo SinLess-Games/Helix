@@ -16,6 +16,7 @@ class ServerList(Base):
 
     # Columns (name = construction)
     rID = Column(Integer, primary_key=True, autoincrement=True)
+    bot_active = Column(BOOLEAN, default=True)
     ServerID = Column(BigInteger)
     ServerName = Column(String(200))
     MemberCount = Column(Integer)
@@ -101,3 +102,31 @@ class Mutes(Base):
     UserName = Column(String(200))
     Roles = Column(String(200))
     EndTime = Column(DATETIME)
+
+
+# Mute table Construction
+# TODO: Go through code verify location where each column is used
+class Bans(Base):
+    __tablename__ = "Bans"
+
+    ID = Column(Integer, primary_key=True, autoincrement=True)
+    UserID = Column(Integer)
+    UserName = Column(String(200))
+    Ban_Date = Column(DATE)
+
+
+# Users table construction
+# TODO: Go through code verify location where each column is used
+class Bots(Base):  # tasks.py handles this table
+    __tablename__ = "Bots"
+
+    rID = Column(BigInteger, primary_key=True, autoincrement=True)
+    UserID = Column(BigInteger)
+    DisplayName = Column(BLOB)
+    Discriminator = Column(BigInteger)
+    Mention = Column(BLOB)
+    DMChannel = Column(BLOB)
+    Roles = Column(BLOB)
+    Server = Column(BLOB)
+    usage = Column(BigInteger)
+    LastUpdate = Column(DATE)

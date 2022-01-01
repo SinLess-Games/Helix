@@ -20,11 +20,8 @@ from Helix.spotify import Spotify
 from Helix.util import load_file
 from Helix.utils import exceptions
 from Helix.utils.config import Config, ConfigDefaults
-from Helix.utils.db_tools import Users, Stats, BlackList, Mutes, ServConfig, ServerList
+from Helix.utils.db_tools import Users, Stats, BlackList, Mutes, ServConfig, ServerList, Bans, Bots
 from Helix.utils.opus_loader import load_opus_lib
-
-# Discord Intents
-intents = discord.Intents.all()
 
 # Load opus library
 load_opus_lib()
@@ -52,14 +49,14 @@ class Helix(commands.AutoShardedBot):
         def debug_lvl():
             # Checks Debug setting
             if str(self.config.debug_level) == 'CRITICAL':
-                tsr = 0.2
-                return tsr
+                sen_level = 0.2
+                return sen_level
             elif str(self.config.debug_level) == 'WARNING':
-                tsr = .5
-                return tsr
+                sen_level = .5
+                return sen_level
             elif str(self.config.debug_level) == 'DEBUG':
-                tsr = 1.0
-                return tsr
+                sen_level = 1.0
+                return sen_level
 
         # Sentry error reporting
         sentry_sdk.init(
@@ -117,6 +114,9 @@ class Helix(commands.AutoShardedBot):
             'availability_paused': False
         }
         self.server_specific_data = defaultdict(ssd_defaults.copy)
+
+        # Discord Intents
+        intents = discord.Intents.all()
 
         # Super initialize (sets prefix, intents, description, case sensitivity, and start time
         super().__init__(
@@ -210,10 +210,10 @@ class Helix(commands.AutoShardedBot):
 
     def ensure_appinfo(self):
         @wraps(self)
-        async def wrapper(c, *args, **kwargs):
-            await c._cache_app_info()
+        async def wrapper(wrap, *args, **kwargs):
+            await wrap._cache_app_info()
             # noinspection PyCallingNonCallable
-            return await self(c, *args, **kwargs)
+            return await self(wrap, *args, **kwargs)
 
         return wrapper
 
@@ -322,20 +322,21 @@ class Helix(commands.AutoShardedBot):
                 # If DB exists prints database_exists
                 print(database_exists(Engine.url))
 
-            usr = Users()
-            sts = Stats()
-            cfg = ServConfig()
-            bl = BlackList()
-            mut = Mutes()
+            # usr = Users()
+            # sts = Stats()
+            # cfg = ServConfig()
+            # bl = BlackList()
+            # mut = Mutes()
 
             ServerList.__table__.create(bind=self.sql_engine, checkfirst=True)
-            BlackList.__table__.create(bind=self.sql_engine, checkfirst=True)
 
             Users.__table__.create(bind=Engine, checkfirst=True)
+            Bans.__table__.create(bind=Engine, checkfirst=True)
             Stats.__table__.create(bind=Engine, checkfirst=True)
             ServConfig.__table__.create(bind=Engine, checkfirst=True)
             BlackList.__table__.create(bind=Engine, checkfirst=True)
             Mutes.__table__.create(bind=Engine, checkfirst=True)
+            Bots.__table__.create(bind=Engine, checkfirst=True)
 
 
 bot = Helix()

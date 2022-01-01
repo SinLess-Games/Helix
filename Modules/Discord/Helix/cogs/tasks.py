@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy_utils import database_exists, create_database
 
 from Helix.utils.config import Config, ConfigDefaults
-from Helix.utils.db_tools import ServerList, Users, Stats
+from Helix.utils.db_tools import ServerList, Users, Stats, Bans, Bots
 
 
 class Task_Loop(commands.Cog):
@@ -45,25 +45,183 @@ class Task_Loop(commands.Cog):
             print(database_exists(self.sql_engine.url))
 
     @commands.Cog.listener()
-    async def on_guild_update(self):
-        # TODO: build sql for guild update
-        pass
+    async def on_guild_join(self, guild):
+        """
+            This event is called when a guild (server) is either created by the bot
+             or when the bot joins a guild.
+            Args:
+                guild:
+                    The Guild object of the joined guild.
+            """
+        # TODO: verify works
+        Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
+                               echo=False)
+
+        channels = await guild.fetch_channels()
+        members = await guild.fetch_members().flatten()
+        server = guild.name
+
+        with Session(Engine) as session:
+            serv = ServerList()
+            Guild_Exists = session.query(ServerList).filter_by(ServerID=guild.id).first()
+            if not Guild_Exists:
+                serv.ServerID = guild.id
+                serv.ServerName = server.encode(encoding='UTF-8')
+                serv.MemberCount = members
+                serv.ChannelCount = channels
+                serv.LastUpdate = datetime.now()
+                session.add(serv)
+                session.commit()
+                session.close()
+
+            else:
+                session.query(ServerList).filter_by(ServerID=guild.id).update({
+                    "ServerName": guild.name,
+                    "bot_active": True,
+                    "MemberCount": members,
+                    "ChannelCount": channels,
+                    "LastUpdate": datetime.now()
+                }, synchronize_session="fetch")
+                session.commit()
+                session.close()
 
     @commands.Cog.listener()
-    async def on_guild_remove(self):
+    async def on_guild_remove(self, guild):
+        """
+        This event is called when the bot is no longer in a guild (server).
+        This can be either be:
+         * The bot got kicked.
+         * The bot got banned.
+         * The bot left the guild.
+         * The guild got deleted.
+        Args:
+            guild:
+                The Guild object that's left by the bot.
+        """
+        # TODO: build sql for guild remove
+        Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
+                               echo=False)
+
+        with Session(Engine) as session:
+            serv = ServerList()
+            Guild_Exists = session.query(ServerList).filter_by(ServerID=guild.id).first()
+            if not Guild_Exists:
+                serv.bot_active = False
+                serv.LastUpdate = datetime.now()
+                session.add(serv)
+                session.commit()
+                session.close()
+
+    @commands.Cog.listener()
+    async def on_guild_update(self, before, after):
+        """
+            This event is called the guild (server) got updated.
+            This can be either be:
+             * Name changes.
+             * AFK channel changes.
+             * AFK timeout.
+             * etc.
+            Args:
+                before:
+                    The Guild object prior to the update.
+                after:
+                    The Guild object after the update.
+            """
+        # TODO: build sql for guild update
+        Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
+                               echo=False)
+
+        channels = await after.fetch_channels()
+        members = await after.fetch_members().flatten()
+        server = after.name
+
+        with Session(Engine) as session:
+            serv = ServerList()
+            Guild_Exists = session.query(ServerList).filter_by(ServerID=before.id).first()
+            if not Guild_Exists:
+                serv.ServerName = server.encode(encoding='UTF-8')
+                serv.MemberCount = members
+                serv.ChannelCount = channels
+                serv.LastUpdate = datetime.now()
+                session.add(serv)
+                session.commit()
+                session.close()
+
+            else:
+                session.query(ServerList).filter_by(ServerID=before.id).update({
+                    "ServerName": after.name,
+                    "bot_active": True,
+                    "MemberCount": members,
+                    "ChannelCount": channels,
+                    "LastUpdate": datetime.now()
+                }, synchronize_session="fetch")
+                session.commit()
+                session.close()
+
+    @commands.Cog.listener()
+    async def on_guild_role_create(self, role):
+        """
+        This event is called when a new role is created in a guild (server).
+        Args:
+            role:
+                The Role object of the created role.
+        """
         # TODO: build sql for guild remove
         pass
 
     @commands.Cog.listener()
-    async def on_member_ban(self, guild):
-        id = guild.id
-        engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{id}', echo=False)
+    async def on_guild_role_delete(self, role):
+        """
+        This event is called when a new role is deleted in a guild (server).
+        Args:
+            role:
+                The Role object of the deleted role.
+        """
+        # TODO: build sql for guild remove
+        pass
+
+    @commands.Cog.listener()
+    async def on_guild_role_update(self, before, after):
+        """
+        This event is called when a role is updated in a guild (server).
+        Args:
+            before:
+                The Role object of the original role.
+            after:
+                The Role object of the updated role.
+        """
+        # TODO: build sql for guild remove
+        pass
+
+    @commands.Cog.listener()
+    async def on_member_ban(self, guild, user):
+        """
+            This event is called when a member is banned from a guild (server).
+            Args:
+                guild:
+                    The Guild object of where the user got banned from.
+                user:
+                    The User object of the one who got banned.
+            """
+        identity = guild.id
+        Eng = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{identity}', echo=False)
         dt = datetime.today()
         date = dt
-        with Session(engine) as session:
+        with Session(Eng) as session:
             stats = Stats()
+            bans = Bans()
 
             _stats = session.query(Stats).filter_by(Date=date).first()
+            _Bans = session.query(Bans).filter_by(UserID=user.id).first()
+
+            if not _Bans:
+                bans.UserID = user.id
+                bans.UserName = user.name
+                bans.ban_date = date
+
+                session.add(bans)
+                session.commit()
+                session.close()
 
             if not _stats:
                 stats.MemberCount = 0
@@ -90,59 +248,62 @@ class Task_Loop(commands.Cog):
                 session.close()
 
     @commands.Cog.listener()
-    async def on_member_unban(self):
+    async def on_member_unban(self, guild, user):
+        """
+            This event is called when a member is unbanned from a guild (server).
+            Args:
+                guild:
+                    The Guild object of where the user got unbanned from.
+                user:
+                    The User object of the one who got unbanned.
+            """
         # TODO: build sql for member unban
-        pass
+        identity = guild.id
+        Eng = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{identity}', echo=False)
+        dt = datetime.today()
+        date = dt
+        with Session(Eng) as session:
+            stats = Stats()
 
-    @commands.Cog.listener()
-    async def on_guild_join(self):
-        async for guild in self.client.fetch_guilds():
-            Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
-                                   echo=False)
-            dt = datetime.today()
-            date = dt
+            _stats = session.query(Stats).filter_by(Date=date).first()
+            _Bans = session.query(Bans).filter_by(UserID=user.id).first()
 
-            channels = await guild.fetch_channels()
-            members = await guild.fetch_members().flatten()
-            server = guild.name
-            channel_count = len(channels)
-            members_count = len(members)
-            # add data to stats table
-            bans = await guild.bans()
-            ban_count = len(bans)
-            dt = datetime.today()
-            date = dt
+            if not _Bans:
+                pass
+            else:
+                session.query(Bans).filter_by(UserID=user.id).delete()
 
-            with Session(Engine) as session:
-                serv = ServerList()
-                Guild_Exists = session.query(ServerList).filter_by(ServerID=guild.id).first()
-                if not Guild_Exists:
-                    serv.ServerID = guild.id
-                    serv.ServerName = server.encode(encoding='UTF-8')
-                    serv.MemberCount = members
-                    serv.ChannelCount = channels
-                    serv.LastUpdate = datetime.now()
-                    session.add(serv)
-                    session.commit()
-                    session.close()
+            if not _stats:
+                stats.MemberCount = 0
+                stats.BanCount = 0
+                stats.MessageDeletions = 0
+                stats.MessageEdits = 0
+                stats.RolesCount = 0
+                stats.RoleChanges = 0
+                stats.NameUpdates = 0
+                stats.AvatarChanges = 0
+                stats.IgnoredChannels = 0
+                stats.Date = date
 
-                else:
-                    session.query(ServerList).filter_by(ServerID=guild.id).update({
-                        "ServerName": guild.name,
-                        "MemberCount": members,
-                        "ChannelCount": channels,
-                        "LastUpdate": datetime.now()
-                    }, synchronize_session="fetch")
-                    session.commit()
-                    session.close()
+                session.add(stats)
+                session.commit()
+                session.close()
+
+            else:
+                data = session.query(Stats).filter_by(Date=date).first()
+                session.query(Stats).filter_by(Date=date).update({
+                    "Bancount": data.Bancount - 1
+                }, synchronize_session="fetch")
+                session.commit()
+                session.close()
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        id = message.guild.id
-        engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{id}', echo=False)
+        identity = message.guild.id
+        Eng = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{identity}', echo=False)
         dt = datetime.today()
         date = dt
-        with Session(engine) as session:
+        with Session(Eng) as session:
             stats = Stats()
 
             _stats = session.query(Stats).filter_by(Date=date).first()
@@ -173,11 +334,11 @@ class Task_Loop(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, message):
-        id = message.guild.id
-        engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{id}', echo=False)
+        identity = message.guild.id
+        Eng = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{identity}', echo=False)
         dt = datetime.today()
         date = dt
-        with Session(engine) as session:
+        with Session(Eng) as session:
             stats = Stats()
 
             _stats = session.query(Stats).filter_by(Date=date).first()
@@ -211,12 +372,16 @@ class Task_Loop(commands.Cog):
     async def update_24(self):
         print("Updating...")
         async for guild in self.client.fetch_guilds():
-            engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{guild.id}',
-                                   echo=False)
+            guild = await self.client.fetch_guild(guild.id)
+            guild_roles = []
+            for role in guild.roles:
+                guild_roles.append(role)
+            # print(f"guild roles: {str(guild_roles)}")
+
+            Eng = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{guild.id}',
+                                echo=False)
             Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
                                    echo=False)
-            dt = datetime.today()
-            date = dt
 
             channels = await guild.fetch_channels()
             members = await guild.fetch_members().flatten()
@@ -251,8 +416,9 @@ class Task_Loop(commands.Cog):
                     session.commit()
                     session.close()
 
-            with Session(engine) as session:
+            with Session(Eng) as session:
                 stats = Stats()
+                date = datetime.today()
                 _stats = session.query(Stats).filter_by(Date=date).first()
 
                 if not _stats:
@@ -279,31 +445,38 @@ class Task_Loop(commands.Cog):
                     session.commit()
                     session.close()
 
-            async for member in guild.fetch_members():
+            Member: discord.Member
+            async for Member in guild.fetch_members():
+                member = await guild.fetch_member(Member.id)  # Fetches member object
                 member_id = member.id  # Integer
                 displayName = member.display_name  # String
                 discriminator = member.discriminator  # String
                 mention = member.mention  # String
-                roles = str(member.roles)  # List
                 server = guild.name  # String
-                # update existing
-                User = discord.Member
-                dm = str(User.dm_channel)
+                _roles = []
+                for role in member.roles:  # Iterates through each roll and adds them to a list
+                    _roles.append(role.name)
+                roles = str(_roles)
+                # print(f"Guild: {guild.name}, User: {member.name}, roles: {_roles}, {roles}")
+
+                dm = "coming soon"
+
                 dt = datetime.today()
                 date = dt
                 engine1 = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{guild.id}',
                                         echo=False)
                 with Session(engine1) as session:
                     usr = Users()
+                    bot = Bots()
 
                     UserExists = session.query(Users).filter_by(UserID=member.id).first()
-                    if not UserExists:
+                    if not UserExists and not member.bot:
                         usr.UserID = member_id
                         usr.DisplayName = displayName.encode(encoding='UTF-8')
                         usr.Discriminator = discriminator.encode(encoding='UTF-8')
                         usr.Mention = mention.encode(encoding='UTF-8')
                         usr.DMChannel = dm.encode(encoding='UTF-8')
-                        usr.Roles = roles.encode(encoding='UTF-8')  # TODO: needs fixed, returns none type list
+                        usr.Roles = roles.encode(encoding='UTF-8')
                         usr.Server = server.encode(encoding='UTF-8')
                         usr.LastUpdate = date
                         session.add(usr)
@@ -322,8 +495,32 @@ class Task_Loop(commands.Cog):
                         }, synchronize_session="fetch")
                         session.commit()
                         session.close()
+                    if not UserExists and member.bot:
+                        bot.UserID = member_id
+                        bot.DisplayName = displayName.encode(encoding='UTF-8')
+                        bot.Discriminator = discriminator.encode(encoding='UTF-8')
+                        bot.Mention = mention.encode(encoding='UTF-8')
+                        bot.DMChannel = dm.encode(encoding='UTF-8')
+                        bot.Roles = roles.encode(encoding='UTF-8')
+                        bot.Server = server.encode(encoding='UTF-8')
+                        bot.LastUpdate = date
+                        session.add(bot)
+                        session.commit()
+                        session.close()
+                    else:
+                        session.query(Bots).filter_by(UserID=member.id).update({
+                            "DisplayName": displayName.encode(encoding='UTF-8'),
+                            "Discriminator": discriminator.encode(encoding='UTF-8'),
+                            "Mention": mention.encode(encoding='UTF-8'),
+                            "DMChannel": dm.encode(encoding='UTF-8'),
+                            "Roles": roles.encode(encoding='UTF-8'),
+                            "usage": 0,
+                            "LastUpdate": date
+                        }, synchronize_session="fetch")
+                        session.commit()
+                        session.close()
 
-                print(f"Adding users to: {guild.name} database; DBid: {guild.id}")
+                # print(f"Adding users to: {guild.name} database; DBid: {guild.id}")
 
 
 def setup(client):
