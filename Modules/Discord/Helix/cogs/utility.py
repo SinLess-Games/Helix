@@ -10,6 +10,10 @@ from Helix.utils.paginator import ListPaginator
 
 
 class Utility(commands.Cog):
+    """
+    Utilities for ease of use
+    """
+
     def __init__(self, bot):
         self.bot = bot
         self.utility_embed_color = 0x3498d

@@ -265,6 +265,10 @@ class Player(wavelink.Player):
 
 
 class Music(commands.Cog, wavelink.WavelinkMixin):
+    """
+    Music Module For Helix
+    """
+
     def __init__(self, bot, config_file=None):
         self.bot = bot
         self.wavelink = wavelink.Client(bot=bot)
@@ -326,6 +330,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="connect", aliases=["join"])
     async def connect_command(self, ctx, *, channel: t.Optional[discord.VoiceChannel]):
+        """
+        Connects to channel you are in
+        """
         player = self.get_player(ctx)
         channel = await player.connect(ctx, channel)
         await ctx.send(f"Connected to {channel.name}.")
@@ -339,12 +346,18 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="disconnect", aliases=["leave"])
     async def disconnect_command(self, ctx):
+        """
+        Disconnects from the channel
+        """
         player = self.get_player(ctx)
         await player.teardown()
         await ctx.send("Disconnected.")
 
     @commands.command(name="play")
     async def play_command(self, ctx, *, query: t.Optional[str]):
+        """
+        Play command You can use a URL or the name of a song
+        """
         player = self.get_player(ctx)
 
         if not player.is_connected:
@@ -366,6 +379,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name='autoplaylist')
     async def auto_playlist_cmd(self, ctx, *, query: t.Optional[str]):
+        """
+        Auto Playlist command, allows you to see auto playlist
+        """
         content = []
         with open('Helix/Configs/autoplaylist.txt', 'r') as file:
             for line in file.readlines():
@@ -396,6 +412,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="pause")
     async def pause_command(self, ctx):
+        """
+        Pause command
+        """
         player = self.get_player(ctx)
 
         if player.is_paused:
@@ -411,6 +430,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="stop")
     async def stop_command(self, ctx):
+        """
+        Stops The music
+        """
         player = self.get_player(ctx)
         player.queue.empty()
         await player.stop()
@@ -418,6 +440,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="next", aliases=["skip"])
     async def next_command(self, ctx):
+        """
+        Plays next song after vote
+        """
         player = self.get_player(ctx)
 
         if not player.queue.upcoming:
@@ -435,6 +460,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="previous")
     async def previous_command(self, ctx):
+        """
+        Plays Previous song
+        """
         player = self.get_player(ctx)
 
         if not player.queue.history:
@@ -453,6 +481,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="shuffle")
     async def shuffle_command(self, ctx):
+        """
+        Shuffles the song in Queue
+        """
         player = self.get_player(ctx)
         player.queue.shuffle()
         await ctx.send("Queue shuffled.")
@@ -464,6 +495,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="repeat")
     async def repeat_command(self, ctx, mode: str):
+        """
+        Repeats either none 1 or all songs
+        """
         if mode not in ("none", "1", "all"):
             raise InvalidRepeatMode
 
@@ -473,6 +507,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="queue")
     async def queue_command(self, ctx, show: t.Optional[int] = 10):
+        """
+        Shows the song Queue
+        """
         player = self.get_player(ctx)
 
         if player.queue.is_empty:
@@ -509,6 +546,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.group(name="volume", invoke_without_command=True)
     async def volume_group(self, ctx, volume: int):
+        """
+        Volume control value between 1 and 150
+        """
         player = self.get_player(ctx)
 
         if volume < 0:
@@ -529,6 +569,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @volume_group.command(name="up")
     async def volume_up_command(self, ctx):
+        """
+        Volume up command
+        """
         player = self.get_player(ctx)
 
         if player.volume == 150:
@@ -544,6 +587,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @volume_group.command(name="down")
     async def volume_down_command(self, ctx):
+        """
+        Volume Down Command
+        """
         player = self.get_player(ctx)
 
         if player.volume == 0:
@@ -559,6 +605,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="lyrics")
     async def lyrics_command(self, ctx, name: t.Optional[str]):
+        """
+        Lyrics for song
+        """
         player = self.get_player(ctx)
         name = name or player.queue.current_track.title
 
@@ -589,6 +638,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="eq")
     async def eq_command(self, ctx, preset: str):
+        """
+        EQ command
+        """
         player = self.get_player(ctx)
 
         eq = getattr(wavelink.eqs.Equalizer, preset, None)
@@ -633,6 +685,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="playing", aliases=["np"])
     async def playing_command(self, ctx):
+        """
+        Now playing command
+        """
         player = self.get_player(ctx)
 
         if not player.is_playing:
@@ -665,6 +720,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="skipto", aliases=["playindex"])
     async def skipto_command(self, ctx, index: int):
+        """
+        Skip to a song in the queue
+        """
         player = self.get_player(ctx)
 
         if player.queue.is_empty:
@@ -686,6 +744,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="restart")
     async def restart_command(self, ctx):
+        """
+        Restarts song
+        """
         player = self.get_player(ctx)
 
         if player.queue.is_empty:
@@ -701,6 +762,9 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
     @commands.command(name="seek")
     async def seek_command(self, ctx, position: str):
+        """
+        Seeeks a song in Queue
+        """
         player = self.get_player(ctx)
 
         if player.queue.is_empty:

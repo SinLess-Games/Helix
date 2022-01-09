@@ -128,5 +128,5 @@ class Bots(Base):  # tasks.py handles this table
     DMChannel = Column(BLOB)
     Roles = Column(BLOB)
     Server = Column(BLOB)
-    usage = Column(BigInteger)
+    usage = Column(Integer)
     LastUpdate = Column(DATE)

@@ -6,24 +6,27 @@
 #
 ####
 
-import discord, json
+import json
+
+import discord
 from discord.ext import commands
 
 # editable parameters
-data_file_name = "Configs/data.json"
+data_file_name = "Helix/data.json"
 
 
-class Ticket(commands.Cog):
+########
+
+class TicketCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        #####
-        #   Check if data exists
-        #      if true -> returns data
-        #       else -> sends a message
-        #
-        ######
-
+    #####
+    #   Check if data exists
+    #      if true -> returns data 
+    #       else -> sends a message
+    #
+    ######
     async def dataExists(ctx, isAdmin=False):
         try:
             with open(data_file_name, encoding="utf8") as f:
@@ -37,10 +40,10 @@ class Ticket(commands.Cog):
             return
 
             #####
-        #   Sends log to admin and ticket creator
-        #
-        ######
 
+    #   Sends log to admin and ticket creator
+    #
+    ######
     async def SendLog(author, contentOne: str = "Default Message", contentTwo: str = "\uFEFF", color=0x808080,
                       timestamp=None, file: discord.File = None, ):
         embed = discord.Embed(title=contentOne, description=contentTwo, color=color)
@@ -53,21 +56,18 @@ class Ticket(commands.Cog):
 
     #####
     #   create_ticket -> Creates a ticket message
-    #      Creates a message in the channel where it is written, which when reacted to by users, creates a chat in the same category
+    #      Creates a message in the channel where it is written, which when reacted to by users, creates a chat in the same category 
     #
     #   Bot permissions: admin
     #   User permissions: admin
     #
     ######
-
-    @commands.command(name='create_ticket', brief='Creates a ticket message')
+    @commands.command(name='create_ticket', brief='Creates a ticket message',
+                      description='Creates a message in the channel where it is written, which when reacted to by users, creates a chat in the same category')
     @commands.has_permissions(administrator=True)
     async def create_ticket(self, ctx):
-        '''
-        Creates a message in the channel where it is written, which when reacted to by users, creates a chat in the same category
-        '''
         await ctx.message.delete()
-        data = await Ticket.dataExists(ctx, True)
+        data = await TicketCog.dataExists(ctx, True)
         if data is None:
             return
 
@@ -84,18 +84,16 @@ class Ticket(commands.Cog):
 
     #####
     #   ticket_help -> Shows help
-    #      [prefix]ticket_help shows the ticket commands
+    #      [prefix]ticket_help shows the ticket commands 
     #
     #   Bot permissions: read / write
     #   User permissions: everyone
     #
     ######
-    @commands.command(name='ticket_help', brief='Shows help')
+    @commands.command(name='ticket_help', brief='Shows help',
+                      description='[prefix]ticket_help shows the ticket commands')
     async def ticket_help(self, ctx):
-        '''
-        [prefix]ticket_help shows the ticket commands
-        '''
-        data = await Ticket.dataExists(ctx)
+        data = await TicketCog.dataExists(ctx)
         if data is None:
             return
 
@@ -124,39 +122,34 @@ class Ticket(commands.Cog):
 
     #####
     #   close -> Close ticket
-    #      [prefix]close closes the ticket channel
+    #      [prefix]close closes the ticket channel 
     #
     #   Bot permissions: read / write
     #   User permissions: everyone
     #
     ######
-    @commands.command(name='close', brief='Close ticket')
+    @commands.command(name='close', brief='Close ticket', description='[prefix]close closes the ticket channel')
     async def close(self, ctx):
-        '''
-        [prefix]close closes the ticket channel
-        '''
-        data = await Ticket.dataExists(ctx)
+        data = await TicketCog.dataExists(ctx)
         if data is None:
             return
-
-        def check(message):
-            return message.author == ctx.author and message.channel == ctx.channel and message.content.lower() == "close"
 
         if ctx.channel.id in data["ticket-channel-ids"]:
             channel_id = ctx.channel.id
 
             try:
                 em = discord.Embed(title="Closing ticket",
-                                   description="Are you sure you want to close this ticket? Reply with 'close' if you are sure.",
+                                   description=f"Are you sure you want to close this ticket? React to this message with " +
+                                               data["ticket-emoji"] + ' to open a private chat with the support team.',
                                    color=0x00a8ff)
-                await ctx.send(embed=em)
-                await self.bot.wait_for('message', check=check, timeout=60)
+                message = await ctx.send(embed=em)
+                await message.add_reaction(data["ticket-emoji"])
                 messages = await ctx.channel.history(limit=None, oldest_first=True).flatten()
                 ticketContent = " ".join(
                     [f"{message.author.name} | {message.content}\n" for message in messages]
                 )
                 ticket_name = ctx.channel.name
-                with open(f"tickets/{ticket_name}.txt", "w", encoding="utf8") as f:
+                with open(f"Helix/logs/tickets/{ticket_name}.txt", "w", encoding="utf8") as f:
                     f.write(f"Here is the message log for ticket ID {ticket_name}\n----------\n\n")
                     f.write(ticketContent)
 
@@ -165,11 +158,11 @@ class Ticket(commands.Cog):
                 del data["ticket-channel-ids"][index]
                 with open('data.json', 'w') as f:
                     json.dump(data, f)
-                fileObject = discord.File(f"tickets/{ticket_name}.txt")
+                fileObject = discord.File(f"Helix/logs/tickets/{ticket_name}.txt")
                 for user in ctx.channel.members:
                     if not user.bot:
                         member: discord.Member = ctx.guild.get_member(user.id)
-                        await Ticket.SendLog(member, f"Closed Ticked: Id {ticket_name}", 0xF42069, file=fileObject)
+                        await TicketCog.SendLog(member, f"Closed Ticked: Id {ticket_name}", 0xF42069, file=fileObject)
 
 
             except:
@@ -183,12 +176,10 @@ class Ticket(commands.Cog):
     #   User permissions: admin or support
     #
     ######
-    @commands.command(name='addsupport', brief='Add support role')
+    @commands.command(name='addsupport', brief='Add support role',
+                      description='[prefix]addsupport Adds a role to the support team. It is added to mention role by defect. (admin-level command).')
     async def addsupport(self, ctx, role_id: discord.Role, mentionRole="true"):
-        '''
-        [prefix]addsupport Adds a role to the support team. It is added to mention role by defect. (admin-level command).
-        '''
-        data = await Ticket.dataExists(ctx)
+        data = await TicketCog.dataExists(ctx)
         if data is None:
             return
 
@@ -240,12 +231,10 @@ class Ticket(commands.Cog):
     #   User permissions: admin or support
     #
     ######
-    @commands.command(name='delsupport', brief='Delete support role')
+    @commands.command(name='delsupport', brief='Delete support role',
+                      description='[prefix]delsupport Removes role from support team. (admin-level command).')
     async def delsupport(self, ctx, role_id: discord.Role):
-        '''
-        [prefix]delsupport Removes role from support team. (admin-level command).
-        '''
-        data = await Ticket.dataExists(ctx)
+        data = await TicketCog.dataExists(ctx)
         if data is None:
             return
 
@@ -296,12 +285,10 @@ class Ticket(commands.Cog):
     #   User permissions: admin or support
     #
     ######
-    @commands.command(name='addmentionrole', brief='Add mentionable role')
+    @commands.command(name='addmentionrole', brief='Add mentionable role',
+                      description='[prefix]addmentionrole This command adds a role to the list of mentioned roles. (admin-level command).')
     async def addmentionrole(self, ctx, role_id: discord.Role):
-        '''
-        [prefix]addmentionrole This command adds a role to the list of mentioned roles. (admin-level command).
-        '''
-        data = await Ticket.dataExists(ctx)
+        data = await TicketCog.dataExists(ctx)
         if data is None:
             return
 
@@ -355,12 +342,10 @@ class Ticket(commands.Cog):
     #   User permissions: admin or support
     #
     ######
-    @commands.command(name='delmentionrole', brief='Delete mentionable role')
+    @commands.command(name='delmentionrole', brief='Delete mentionable role',
+                      description='[prefix]delmentionrole This command removes a role from the list of mentioned roles. (admin-level command).')
     async def delmentionrole(self, ctx, role_id: discord.Role):
-        '''
-        [prefix]delmentionrole This command removes a role from the list of mentioned roles. (admin-level command).
-        '''
-        data = await Ticket.dataExists(ctx)
+        data = await TicketCog.dataExists(ctx)
         if data is None:
             return
 
@@ -463,4 +448,4 @@ class Ticket(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Ticket(bot))
+    bot.add_cog(TicketCog(bot))

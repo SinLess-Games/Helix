@@ -8,10 +8,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy_utils import database_exists, create_database
 
 from Helix.utils.config import Config, ConfigDefaults
-from Helix.utils.db_tools import ServerList, Users, Stats, Bans, Bots
+from Helix.utils.db_tools import ServerList, Users, Stats, Bans, Bots, ServConfig, BlackList, Mutes
 
 
 class Task_Loop(commands.Cog):
+    """
+    Tasks for backend of bot, No commands for Users.
+    """
 
     def __init__(self, client, config_file=None):
         if config_file is None:
@@ -53,12 +56,29 @@ class Task_Loop(commands.Cog):
                 guild:
                     The Guild object of the joined guild.
             """
-        # TODO: verify works
+        Engine = create_engine(
+            f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{guild.id}',
+            echo=False)
+        if not database_exists(Engine.url):
+            create_database(Engine.url)
+            Users.__table__.create(bind=Engine, checkfirst=True)
+            Bans.__table__.create(bind=Engine, checkfirst=True)
+            Stats.__table__.create(bind=Engine, checkfirst=True)
+            ServConfig.__table__.create(bind=Engine, checkfirst=True)
+            BlackList.__table__.create(bind=Engine, checkfirst=True)
+            Mutes.__table__.create(bind=Engine, checkfirst=True)
+            Bots.__table__.create(bind=Engine, checkfirst=True)
+        else:
+            # If DB exists prints database_exists
+            # print(database_exists(Engine.url))
+            pass
         Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
                                echo=False)
 
         channels = await guild.fetch_channels()
         members = await guild.fetch_members().flatten()
+        channel_count = len(channels)
+        members_count = len(members)
         server = guild.name
 
         with Session(Engine) as session:
@@ -67,8 +87,8 @@ class Task_Loop(commands.Cog):
             if not Guild_Exists:
                 serv.ServerID = guild.id
                 serv.ServerName = server.encode(encoding='UTF-8')
-                serv.MemberCount = members
-                serv.ChannelCount = channels
+                serv.MemberCount = members_count
+                serv.ChannelCount = channel_count
                 serv.LastUpdate = datetime.now()
                 session.add(serv)
                 session.commit()
@@ -76,7 +96,7 @@ class Task_Loop(commands.Cog):
 
             else:
                 session.query(ServerList).filter_by(ServerID=guild.id).update({
-                    "ServerName": guild.name,
+                    "ServerName": guild.name.encode(encoding='UTF-8'),
                     "bot_active": True,
                     "MemberCount": members,
                     "ChannelCount": channels,
@@ -98,14 +118,13 @@ class Task_Loop(commands.Cog):
             guild:
                 The Guild object that's left by the bot.
         """
-        # TODO: build sql for guild remove
         Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
                                echo=False)
 
         with Session(Engine) as session:
             serv = ServerList()
             Guild_Exists = session.query(ServerList).filter_by(ServerID=guild.id).first()
-            if not Guild_Exists:
+            if Guild_Exists:
                 serv.bot_active = False
                 serv.LastUpdate = datetime.now()
                 session.add(serv)
@@ -127,7 +146,6 @@ class Task_Loop(commands.Cog):
                 after:
                     The Guild object after the update.
             """
-        # TODO: build sql for guild update
         Engine = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}',
                                echo=False)
 
@@ -149,7 +167,7 @@ class Task_Loop(commands.Cog):
 
             else:
                 session.query(ServerList).filter_by(ServerID=before.id).update({
-                    "ServerName": after.name,
+                    "ServerName": after.name.encode(encoding='UTF-8'),
                     "bot_active": True,
                     "MemberCount": members,
                     "ChannelCount": channels,
@@ -167,6 +185,7 @@ class Task_Loop(commands.Cog):
                 The Role object of the created role.
         """
         # TODO: build sql for guild remove
+        # COMING SOON
         pass
 
     @commands.Cog.listener()
@@ -178,6 +197,7 @@ class Task_Loop(commands.Cog):
                 The Role object of the deleted role.
         """
         # TODO: build sql for guild remove
+        # COMING SOON
         pass
 
     @commands.Cog.listener()
@@ -191,6 +211,7 @@ class Task_Loop(commands.Cog):
                 The Role object of the updated role.
         """
         # TODO: build sql for guild remove
+        # COMING SOON
         pass
 
     @commands.Cog.listener()
@@ -257,7 +278,6 @@ class Task_Loop(commands.Cog):
                 user:
                     The User object of the one who got unbanned.
             """
-        # TODO: build sql for member unban
         identity = guild.id
         Eng = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{identity}', echo=False)
         dt = datetime.today()
@@ -299,16 +319,22 @@ class Task_Loop(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
+        # print("message deletion detected")
         identity = message.guild.id
         Eng = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{identity}', echo=False)
         dt = datetime.today()
-        date = dt
+        date = dt.strftime('%Y-%m-%d')
+        # print(f'The date var: {date}')
         with Session(Eng) as session:
             stats = Stats()
+            stat = session.query(Stats).filter_by(Date=date).first()
+            stat_date = stat.Date
+            # print(f'The stats dat var: {stat_date}')
 
             _stats = session.query(Stats).filter_by(Date=date).first()
 
-            if not _stats:
+            if not _stats and date != stat_date:
+                # print('No current date detected in stats table')
                 stats.MemberCount = 0
                 stats.BanCount = 0
                 stats.MessageDeletions = 1
@@ -324,7 +350,8 @@ class Task_Loop(commands.Cog):
                 session.commit()
                 session.close()
 
-            else:
+            if str(date) == str(stat_date):
+                # print('entry exists. Updating entry')
                 data = session.query(Stats).filter_by(Date=date).first()
                 session.query(Stats).filter_by(Date=date).update({
                     "MessageDeletions": data.MessageDeletions + 1
@@ -332,18 +359,26 @@ class Task_Loop(commands.Cog):
                 session.commit()
                 session.close()
 
+            else:
+                pass
+
     @commands.Cog.listener()
-    async def on_message_edit(self, message):
-        identity = message.guild.id
+    async def on_message_edit(self, before, after):
+        identity = before.guild.id
         Eng = create_engine(f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{identity}', echo=False)
         dt = datetime.today()
-        date = dt
+        date = dt.strftime('%Y-%m-%d')
+        # print(f'The date var: {date}')
         with Session(Eng) as session:
             stats = Stats()
+            stat = session.query(Stats).filter_by(Date=date).first()
+            stat_date = stat.Date
+            # print(f'The stats dat var: {stat_date}')
 
             _stats = session.query(Stats).filter_by(Date=date).first()
 
-            if not _stats:
+            if not _stats and date != stat_date:
+                # print('No current date detected in stats table')
                 stats.MemberCount = 0
                 stats.BanCount = 0
                 stats.MessageDeletions = 0
@@ -359,13 +394,17 @@ class Task_Loop(commands.Cog):
                 session.commit()
                 session.close()
 
-            else:
+            if str(date) == str(stat_date):
+                # print('entry exists. Updating entry')
                 data = session.query(Stats).filter_by(Date=date).first()
                 session.query(Stats).filter_by(Date=date).update({
                     "MessageEdits": data.MessageEdits + 1
                 }, synchronize_session="fetch")
                 session.commit()
                 session.close()
+
+            else:
+                pass
 
     @tasks.loop(hours=24)
     # Runs every 24 hours to update tables
@@ -398,7 +437,7 @@ class Task_Loop(commands.Cog):
                 GuildExists = session.query(ServerList).filter_by(ServerID=guild.id).first()
                 if not GuildExists:
                     serv.ServerID = guild.id
-                    serv.ServerName = guild.name
+                    serv.ServerName = guild.name.encode(encoding='UTF-8')
                     serv.MemberCount = members_count
                     serv.ChannelCount = channel_count
                     serv.LastUpdate = date
@@ -478,6 +517,7 @@ class Task_Loop(commands.Cog):
                         usr.DMChannel = dm.encode(encoding='UTF-8')
                         usr.Roles = roles.encode(encoding='UTF-8')
                         usr.Server = server.encode(encoding='UTF-8')
+                        usr.PostCount = 0
                         usr.LastUpdate = date
                         session.add(usr)
                         session.commit()
@@ -490,7 +530,6 @@ class Task_Loop(commands.Cog):
                             "Mention": mention.encode(encoding='UTF-8'),
                             "DMChannel": dm.encode(encoding='UTF-8'),
                             "Roles": roles.encode(encoding='UTF-8'),
-                            "PostCount": 0,
                             "LastUpdate": date
                         }, synchronize_session="fetch")
                         session.commit()
@@ -503,6 +542,7 @@ class Task_Loop(commands.Cog):
                         bot.DMChannel = dm.encode(encoding='UTF-8')
                         bot.Roles = roles.encode(encoding='UTF-8')
                         bot.Server = server.encode(encoding='UTF-8')
+                        bot.usage = 0
                         bot.LastUpdate = date
                         session.add(bot)
                         session.commit()
@@ -514,7 +554,6 @@ class Task_Loop(commands.Cog):
                             "Mention": mention.encode(encoding='UTF-8'),
                             "DMChannel": dm.encode(encoding='UTF-8'),
                             "Roles": roles.encode(encoding='UTF-8'),
-                            "usage": 0,
                             "LastUpdate": date
                         }, synchronize_session="fetch")
                         session.commit()

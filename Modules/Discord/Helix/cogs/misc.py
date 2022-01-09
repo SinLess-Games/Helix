@@ -14,6 +14,10 @@ from Helix.utils.message_handler import RemovableMessage
 
 
 class Miscellaneous(commands.Cog):
+    """
+    Miscellaneous Commands
+    """
+
     def __init__(self, bot):
         self.bot = bot
         self.process = psutil.Process(os.getpid())

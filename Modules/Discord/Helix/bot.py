@@ -201,10 +201,10 @@ class Helix(commands.AutoShardedBot):
 
         logging.debug("Set logging level to {}".format(self.config.debug_level_str))
 
-        if self.config.debug_mode == 'debug':
+        if self.config.debug_mode == 'DEBUG':
             d_logger = logging.getLogger('discord')
             d_logger.setLevel(logging.DEBUG)
-            d_handler = logging.FileHandler(filename='logs/discord.log', encoding='utf-8', mode='w')
+            d_handler = logging.FileHandler(filename='./Helix/logs/discord.log', encoding='utf-8', mode='w+')
             d_handler.setFormatter(logging.Formatter('{asctime}:{levelname}:{name}: {message}', style='{'))
             d_logger.addHandler(d_handler)
 
@@ -266,9 +266,7 @@ class Helix(commands.AutoShardedBot):
             hours=5, minutes=30
         )  # GMT+05:30 is Our TimeZone So.
 
-        print(
-            f"[ Log ] {self.user} Connected at {cT.hour}:{cT.minute}:{cT.second} / {cT.day}-{cT.month}-{cT.year}"
-        )
+        # print(f"[ Log ] {self.user} Connected at {cT.hour}:{cT.minute}:{cT.second} / {cT.day}-{cT.month}-{cT.year}")
 
     async def on_ready(self):
         d_logger = logging.getLogger('discord')
@@ -298,12 +296,10 @@ class Helix(commands.AutoShardedBot):
             hours=-7, minutes=00
         )  # GMT-07:00 is Our TimeZone So.
 
-        print(
-            f"[ Log ] {self.user} Ready at {cT.hour}:{cT.minute}:{cT.second} / {cT.day}-{cT.month}-{cT.year}"
-        )
-        print(f"[ Log ] GateWay WebSocket Latency: {self.latency * 1000:.1f} ms")
+        logging.info(f"[ Log ] {self.user} Ready at {cT.hour}:{cT.minute}:{cT.second} / {cT.day}-{cT.month}-{cT.year}")
+        logging.info(f"[ Log ] GateWay WebSocket Latency: {self.latency * 1000:.1f} ms")
         self.config.client_id = (await self.application_info()).id
-        print(f'[ Log ] Bot is ready! DEUS VULT!')
+        logging.info(f'[ Log ] Bot is ready! DEUS VULT!')
 
         config_activity = self.config.bot_activity
         activity = discord.Game(name=self.config.bot_status_text)
@@ -313,30 +309,26 @@ class Helix(commands.AutoShardedBot):
         # Builds databases and tables, do not move from here, This works here and not in cogs.
         # TODO: find out if I can make it work in a cog, and if so how to.
         async for guild in self.fetch_guilds():
+            ServerList.__table__.create(bind=self.sql_engine, checkfirst=True)
             Engine = create_engine(
                 f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{guild.id}',
                 echo=False)
             if not database_exists(Engine.url):
                 create_database(Engine.url)
+                Users.__table__.create(bind=Engine, checkfirst=True)
+                Bans.__table__.create(bind=Engine, checkfirst=True)
+                Stats.__table__.create(bind=Engine, checkfirst=True)
+                ServConfig.__table__.create(bind=Engine, checkfirst=True)
+                BlackList.__table__.create(bind=Engine, checkfirst=True)
+                Mutes.__table__.create(bind=Engine, checkfirst=True)
+                Bots.__table__.create(bind=Engine, checkfirst=True)
             else:
                 # If DB exists prints database_exists
-                print(database_exists(Engine.url))
+                # print(database_exists(Engine.url))
+                pass
 
             # usr = Users()
             # sts = Stats()
             # cfg = ServConfig()
             # bl = BlackList()
             # mut = Mutes()
-
-            ServerList.__table__.create(bind=self.sql_engine, checkfirst=True)
-
-            Users.__table__.create(bind=Engine, checkfirst=True)
-            Bans.__table__.create(bind=Engine, checkfirst=True)
-            Stats.__table__.create(bind=Engine, checkfirst=True)
-            ServConfig.__table__.create(bind=Engine, checkfirst=True)
-            BlackList.__table__.create(bind=Engine, checkfirst=True)
-            Mutes.__table__.create(bind=Engine, checkfirst=True)
-            Bots.__table__.create(bind=Engine, checkfirst=True)
-
-
-bot = Helix()

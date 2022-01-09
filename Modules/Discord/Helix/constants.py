@@ -6,7 +6,7 @@ from discord import Color
 AUDIO_CACHE_PATH = os.path.join(os.getcwd(), 'audio_cache')
 DISCORD_MSG_CHAR_LIMIT = 4000
 
-SinLess_guild_id = 765715864656936981
+SinLess_guild_id = '765715864656936981'
 website_url = ""
 privacy_url = ""
 rules_url = ""
@@ -45,9 +45,9 @@ staff_channel_id = ""
 muted_role_id = ''
 verified_role_id = ''
 trusted_role_id = ''
-moderator_role = ''
-admin_role = ''
-new_member_role = ''
+moderator_role = ('812037225143468072', '824362334423744552')
+admin_role = ('881186256267128842', '768071824981491742')
+new_member_role = '768249012536868865'
 
 self_assignable_roles = {
     915075587972927529: 589128905290547217,  # Python

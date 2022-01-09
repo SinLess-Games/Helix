@@ -12,6 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class Defcon(commands.Cog):
+    """
+    For protecting against Raids
+    """
+
     def __init__(self, bot):
         self.bot = bot
         self.defcon_active = False
@@ -50,7 +54,7 @@ class Defcon(commands.Cog):
             await self.staff_channel.send(
                 f"@here DEFCON activated, detected {len(self._joins)} joins in the last minute!\n"
                 f"I'll kick any new joins as long as DEFCON is active, you need to manually disable it with:\n"
-                f"t.disable_defcon"
+                f"H!disable_defcon"
             )
 
     @commands.command()

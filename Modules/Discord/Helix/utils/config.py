@@ -34,6 +34,7 @@ class Config:
                                                fallback=ConfigDefaults.spotify_clientsecret)
 
         self.owner_id = config.get(' Helix_Config ', 'bot_owner_id', fallback=ConfigDefaults.owner_id)
+        self.owner = config.get(' Helix_Config ', 'Owner_Name')
         self.dev_ids = config.get(' Helix_Config ', 'DevIDs', fallback=ConfigDefaults.dev_ids)
         self.bot_exception_ids = config.get(' Helix_Config ', "BotExceptionIDs",
                                             fallback=ConfigDefaults.bot_exception_ids)
@@ -99,6 +100,26 @@ class Config:
         self.check_changes(config)
 
         self.find_autoplaylist()
+
+        # tracked bot id's
+        self.Helix = config.get(' Helix_Config ', 'Helix')
+        self.Rias = config.get(' Helix_Config ', 'Rias')
+        self.Beemo = config.get(' Helix_Config ', 'Beemo')
+        self.Dyno = config.get(' Helix_Config ', 'Dyno')
+        self.MEE6 = config.get(' Helix_Config ', 'MEE6')
+        self.BetterTTV = config.get(' Helix_Config ', 'BetterTTV')
+        self.Disboard = config.get(' Helix_Config ', 'Disboard')
+        self.ServerStats = config.get(' Helix_Config ', 'ServerStats')
+        self.DiscordServers = config.get(' Helix_Config ', 'DiscordServers')
+        self.DiscordME = config.get(' Helix_Config ', 'DiscordME')
+        self.TopGG = config.get(' Helix_Config ', 'TopGG')
+        self.WidgetBot = config.get(' Helix_Config ', 'WidgetBot')
+        self.AsterieBot = config.get(' Helix_Config ', 'AsterieBot')
+        self.AstroBot = config.get(' Helix_Config ', 'AstroBot')
+        self.Hodor = config.get(' Helix_Config ', 'Hodor')
+        self.Kitsunetsuki = config.get(' Helix_Config ', 'Kitsunetsuki')
+        self.ArtPromptWizard = config.get(' Helix_Config ', 'ArtPromptWizard')
+        self.ArtPromptDiscordBot = config.get(' Helix_Config ', 'ArtPromptsDiscordBot')
 
     def get_all_keys(self, conf):
         """Returns all config keys as a list"""

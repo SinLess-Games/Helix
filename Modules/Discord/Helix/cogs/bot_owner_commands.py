@@ -10,6 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 class BotOwnerCommands(commands.Cog):
+    """
+    Commands for the bot owner
+    """
+
     def __init__(self, bot):
         self.bot = bot
 
