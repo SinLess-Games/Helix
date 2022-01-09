@@ -1,11 +1,11 @@
 import discord
 from discord.ext import commands
-from discord import Member as DiscordMember
+from discord.ext.commands import Cog
 
 Guild = object()
 
 
-class test(commands.Cog):
+class test(Cog):
     """
     Useful and fun commands
     """

@@ -1,86 +1,373 @@
-import json
+import codecs
+import configparser
+import logging
 import os
-import uuid
-import asyncio
+import shutil
+import sys
 
+from Helix.utils.exceptions import HelpfulError
 
-def _create_encoder(cls):
-    def _default(self, o):
-        if isinstance(o, cls):
-            return o.to_json()
-        return super().default(o)
-
-    return type('_Encoder', (json.JSONEncoder,), { 'default': _default })
+log = logging.getLogger(__name__)
 
 
 class Config:
-    """The "database" object. Internally based on ``json``."""
+    # noinspection PyUnresolvedReferences
+    def __init__(self, config_file):
+        self.config_file = config_file
+        self.find_config()
 
-    def __init__(self, name, **options):
-        self.name = name
-        self.object_hook = options.pop('object_hook', None)
-        self.encoder = options.pop('encoder', None)
+        config = configparser.ConfigParser(interpolation=None)
+        config.read(config_file, encoding='utf-8')
 
-        try:
-            hook = options.pop('hook')
-        except KeyError:
-            pass
+        self._confpreface = "An error has occured reading the config:\n"
+        self._confpreface2 = "An error has occured validating the config:\n"
+
+        self._login_token = config.get(' Helix_Config ', 'Token', fallback=ConfigDefaults.token)
+
+        self.auth = ()
+
+        self.version = config.get(' Helix_Config ', 'Version', fallback=ConfigDefaults.Version)
+
+        self.spotify_clientid = config.get(' Helix_Config ', 'Spotify_ClientID',
+                                           fallback=ConfigDefaults.spotify_clientid)
+        self.spotify_clientsecret = config.get(' Helix_Config ', 'Spotify_ClientSecret',
+                                               fallback=ConfigDefaults.spotify_clientsecret)
+
+        self.owner_id = config.get(' Helix_Config ', 'bot_owner_id', fallback=ConfigDefaults.owner_id)
+        self.owner = config.get(' Helix_Config ', 'Owner_Name')
+        self.dev_ids = config.get(' Helix_Config ', 'DevIDs', fallback=ConfigDefaults.dev_ids)
+        self.bot_exception_ids = config.get(' Helix_Config ', "BotExceptionIDs",
+                                            fallback=ConfigDefaults.bot_exception_ids)
+
+        self.sql_host = config.get(' Helix_Config ', 'SQL_Host')
+        self.sql_user = config.get(' Helix_Config ', 'SQL_UserName')
+        self.sql_passwd = config.get(' Helix_Config ', 'SQL_Password')
+        self.sql_ddb = config.get(' Helix_Config ', 'DefaultDatabase')
+
+        self.prefix = config.get(' Helix_Config ', 'DefaultPrefix', fallback=ConfigDefaults.command_prefix)
+        self.autojoin_channels = config.get(' Helix_Config ', 'AutojoinChannels',
+                                            fallback=ConfigDefaults.autojoin_channels)
+
+        self.skips_required = config.getint(' Helix_Config ', 'SkipsRequired', fallback=ConfigDefaults.skips_required)
+        self.skip_ratio_required = config.getfloat(' Helix_Config ', 'SkipRatio',
+                                                   fallback=ConfigDefaults.skip_ratio_required)
+
+        self.now_playing_mentions = config.getboolean(' Helix_Config ', 'NowPlayingMentions',
+                                                      fallback=ConfigDefaults.now_playing_mentions)
+        self.auto_summon = config.getboolean(' Helix_Config ', 'AutoSummon', fallback=ConfigDefaults.auto_summon)
+        self.auto_playlist = config.getboolean(' Helix_Config ', 'UseAutoPlaylist',
+                                               fallback=ConfigDefaults.auto_playlist)
+
+        self.bot_activity = config.get(' Helix_Config ', 'bot_activity')
+        self.ll_host = config.get(' Helix_Config ', 'll_host')
+        self.ll_port = config.get(' Helix_Config ', 'll_port')
+        self.ll_resturi = config.get(' Helix_Config ', 'll_rest_uri')
+        self.ll_password = config.get(' Helix_Config ', 'll_Password')
+        self.ll_identifier = config.get(' Helix_Config ', 'll_identifier')
+        self.ll_region = config.get(' Helix_Config ', 'll_region')
+        self.bot_status_text = config.get(' Helix_Config ', 'bot_status_text')
+
+        self.auto_pause = config.getboolean(' Helix_Config ', 'AutoPause', fallback=ConfigDefaults.auto_pause)
+
+        self.persistent_queue = config.getboolean(' Helix_Config ', 'PersistentQueue',
+                                                  fallback=ConfigDefaults.persistent_queue)
+
+        self.status_message = config.get(' Helix_Config ', 'bot_status_text', fallback=ConfigDefaults.status_message)
+
+        self.allow_author_skip = config.getboolean(' Helix_Config ', 'AllowAuthorSkip',
+                                                   fallback=ConfigDefaults.allow_author_skip)
+
+        self.embeds = config.getboolean(' Helix_Config ', 'UseEmbeds', fallback=ConfigDefaults.embeds)
+        self.queue_length = config.getint(' Helix_Config ', 'QueueLength', fallback=ConfigDefaults.queue_length)
+
+        self.show_config_at_start = config.getboolean(' Helix_Config ', 'ShowConfigOnLaunch',
+                                                      fallback=ConfigDefaults.show_config_at_start)
+
+        self.debug_level = config.get(' Helix_Config ', 'DebugLevel', fallback=ConfigDefaults.debug_level)
+        self.debug_level_str = self.debug_level
+        self.debug_mode = False
+
+        self.auto_playlist_file = config.get(' Helix_Config ', 'AutoPlaylistFile',
+                                             fallback=ConfigDefaults.auto_playlist_file)
+        self.i18n_file = config.get(' Helix_Config ', 'i18nFile', fallback=ConfigDefaults.i18n_file)
+        self.auto_playlist_removed_file = None
+
+        self.client_id = config.get(' Helix_Config ', 'ClientID')
+
+        self.run_checks()
+
+        self.missing_keys = set()
+        self.check_changes(config)
+
+        self.find_autoplaylist()
+
+        # tracked bot id's
+        self.Helix = config.get(' Helix_Config ', 'Helix')
+        self.Rias = config.get(' Helix_Config ', 'Rias')
+        self.Beemo = config.get(' Helix_Config ', 'Beemo')
+        self.Dyno = config.get(' Helix_Config ', 'Dyno')
+        self.MEE6 = config.get(' Helix_Config ', 'MEE6')
+        self.BetterTTV = config.get(' Helix_Config ', 'BetterTTV')
+        self.Disboard = config.get(' Helix_Config ', 'Disboard')
+        self.ServerStats = config.get(' Helix_Config ', 'ServerStats')
+        self.DiscordServers = config.get(' Helix_Config ', 'DiscordServers')
+        self.DiscordME = config.get(' Helix_Config ', 'DiscordME')
+        self.TopGG = config.get(' Helix_Config ', 'TopGG')
+        self.WidgetBot = config.get(' Helix_Config ', 'WidgetBot')
+        self.AsterieBot = config.get(' Helix_Config ', 'AsterieBot')
+        self.AstroBot = config.get(' Helix_Config ', 'AstroBot')
+        self.Hodor = config.get(' Helix_Config ', 'Hodor')
+        self.Kitsunetsuki = config.get(' Helix_Config ', 'Kitsunetsuki')
+        self.ArtPromptWizard = config.get(' Helix_Config ', 'ArtPromptWizard')
+        self.ArtPromptDiscordBot = config.get(' Helix_Config ', 'ArtPromptsDiscordBot')
+
+    def get_all_keys(self, conf):
+        """Returns all config keys as a list"""
+        sects = dict(conf.items())
+        keys = []
+        for k in sects:
+            s = sects[k]
+            keys += [key for key in s.keys()]
+        return keys
+
+    def check_changes(self, conf):
+        exfile = 'config/example_options.ini'
+        if os.path.isfile(exfile):
+            usr_keys = self.get_all_keys(conf)
+            exconf = configparser.ConfigParser(interpolation=None)
+            if not exconf.read(exfile, encoding='utf-8'):
+                return
+            ex_keys = self.get_all_keys(exconf)
+            if set(usr_keys) != set(ex_keys):
+                self.missing_keys = set(ex_keys) - set(usr_keys)  # to raise this as an issue in bot.py later
+
+    def run_checks(self):
+        """
+        Validation logic for bot settings.
+        """
+        if self.i18n_file != ConfigDefaults.i18n_file and not os.path.isfile(self.i18n_file):
+            log.warning('i18n file does not exist. Trying to fallback to {0}.'.format(ConfigDefaults.i18n_file))
+            self.i18n_file = ConfigDefaults.i18n_file
+
+        if not os.path.isfile(self.i18n_file):
+            raise HelpfulError(
+                "Your i18n file was not found, and we could not fallback.",
+                "As a result, the bot cannot launch. Have you moved some files? "
+                "Try pulling the recent changes from Git, or resetting your local repo.",
+                preface=self._confpreface
+            )
+
+        log.info('Using i18n: {0}'.format(self.i18n_file))
+
+        if not self._login_token:
+            raise HelpfulError(
+                "No bot token was specified in the config.",
+                "As of v1.9.6_1, you are required to use a Discord bot account. "
+                "See https://github.com/Just-Some-Bots/MusicBot/wiki/FAQ for info.",
+                preface=self._confpreface
+            )
+
         else:
-            self.object_hook = hook.from_json
-            self.encoder = _create_encoder(hook)
+            self.auth = (self._login_token,)
 
-        self.loop = options.pop('loop', asyncio.get_event_loop())
-        self.lock = asyncio.Lock()
-        if options.pop('load_later', False):
-            self.loop.create_task(self.load())
+        if self.owner_id:
+            self.owner_id = self.owner_id.lower()
+
+            if self.owner_id.isdigit():
+                if int(self.owner_id) < 10000:
+                    raise HelpfulError(
+                        "An invalid OwnerID was set: {}".format(self.owner_id),
+
+                        "Correct your OwnerID. The ID should be just a number, approximately "
+                        "18 characters long, or 'auto'. If you don't know what your ID is, read the "
+                        "instructions in the options or ask in the help server.",
+                        preface=self._confpreface
+                    )
+                self.owner_id = int(self.owner_id)
+
+            elif self.owner_id == 'auto':
+                pass  # defer to async check
+
+            else:
+                self.owner_id = None
+
+        if not self.owner_id:
+            raise HelpfulError(
+                "No OwnerID was set.",
+                "Please set the OwnerID option in {}".format(self.config_file),
+                preface=self._confpreface
+            )
+
+        if self.bot_exception_ids:
+            try:
+                self.bot_exception_ids = set(int(x) for x in self.bot_exception_ids.replace(',', ' ').split())
+            except:
+                log.warning("BotExceptionIDs data is invalid, will ignore all bots")
+                self.bot_exception_ids = set()
+
+        if self.autojoin_channels:
+            try:
+                self.autojoin_channels = set(x for x in self.autojoin_channels.replace(',', ' ').split() if x)
+            except:
+                log.warning("AutojoinChannels data is invalid, will not autojoin any channels")
+                self.autojoin_channels = set()
+
+        self._spotify = False
+        if self.spotify_clientid and self.spotify_clientsecret:
+            self._spotify = True
+
+        self.autojoin_channels = set(int(item) for item in self.autojoin_channels)
+
+        ap_path, ap_name = os.path.split(self.auto_playlist_file)
+        apn_name, apn_ext = os.path.splitext(ap_name)
+        self.auto_playlist_removed_file = os.path.join(ap_path, apn_name + '_removed' + apn_ext)
+
+        if hasattr(logging, self.debug_level.upper()):
+            self.debug_level = getattr(logging, self.debug_level.upper())
         else:
-            self.load_from_file()
+            log.warning("Invalid DebugLevel option \"{}\" given, falling back to INFO".format(self.debug_level_str))
+            self.debug_level = logging.INFO
+            self.debug_level_str = 'INFO'
 
-    def load_from_file(self):
-        try:
-            with open(self.name, 'r') as f:
-                self._db = json.load(f, object_hook=self.object_hook)
-        except FileNotFoundError:
-            self._db = {}
+        self.debug_mode = self.debug_level <= logging.DEBUG
 
-    async def load(self):
-        async with self.lock:
-            await self.loop.run_in_executor(None, self.load_from_file)
+    def create_empty_file_ifnoexist(self, path):
+        if not os.path.isfile(path):
+            open(path, 'a').close()
+            log.warning('Creating %s' % path)
 
-    def _dump(self):
-        temp = '%s-%s.tmp' % (uuid.uuid4(), self.name)
-        with open(temp, 'w', encoding='utf-8') as tmp:
-            json.dump(self._db.copy(), tmp, ensure_ascii=True, cls=self.encoder, separators=(',', ':'))
+    async def async_validate(self, bot):
+        log.debug("Validating options...")
 
-        # atomically move the file
-        os.replace(temp, self.name)
+        if self.owner_id == 'auto':
+            if not bot.user.bot:
+                raise HelpfulError(
+                    "Invalid parameter \"auto\" for OwnerID option.",
 
-    async def save(self):
-        async with self.lock:
-            await self.loop.run_in_executor(None, self._dump)
+                    "Only bot accounts can use the \"auto\" option.  Please "
+                    "set the OwnerID in the config.",
 
-    def get(self, key, *args):
-        """Retrieves a config entry."""
-        return self._db.get(str(key), *args)
+                    preface=self._confpreface2
+                )
 
-    async def put(self, key, value, *args):
-        """Edits a config entry."""
-        self._db[str(key)] = value
-        await self.save()
+            self.owner_id = bot.cached_app_info.owner.id
+            log.debug("Acquired owner id via API")
 
-    async def remove(self, key):
-        """Removes a config entry."""
-        del self._db[str(key)]
-        await self.save()
+        if self.owner_id == bot.user.id:
+            raise HelpfulError(
+                "Your OwnerID is incorrect or you've used the wrong credentials.",
 
-    def __contains__(self, item):
-        return str(item) in self._db
+                "The bot's user ID and the id for OwnerID is identical. "
+                "This is wrong. The bot needs a bot account to function, "
+                "meaning you cannot use your own account to run the bot on. "
+                "The OwnerID is the id of the owner, not the bot. "
+                "Figure out which one is which and use the correct information.",
 
-    def __getitem__(self, item):
-        return self._db[str(item)]
+                preface=self._confpreface2
+            )
 
-    def __len__(self):
-        return len(self._db)
+    def find_config(self):
+        config = configparser.ConfigParser(interpolation=None)
 
-    def all(self):
-        return self._db
+        if not os.path.isfile(self.config_file):
+            if os.path.isfile(self.config_file + '.yml'):
+                shutil.move(self.config_file + '.yml', self.config_file)
+                log.info("Moving {0} to {1}, you should probably turn file extensions on.".format(
+                    self.config_file + '.yml', self.config_file
+                ))
+
+            elif os.path.isfile('Helix/Configs/example_config.yml'):
+                shutil.copy('Helix/Configs/example_config.yml', self.config_file)
+                log.warning('Config file not found, copying example_config.yml')
+
+            else:
+                raise HelpfulError(
+                    "Your config files are missing. Neither config.yml nor example_config.yml were found.",
+                    "Grab the files back from the archive or remake them yourself and copy paste the content "
+                    "from the repo. Stop removing important files!"
+                )
+
+        if not config.read(self.config_file, encoding='utf-8'):
+            c = configparser.ConfigParser()
+            try:
+                # load the config again and check to see if the user edited that one
+                c.read(self.config_file, encoding='utf-8')
+
+                if not int(c.get('Permissions', 'OwnerID', fallback=0)):  #
+                    print(flush=True)
+                    log.critical("Please configure Helix/Configs/config.yml and re-run the bot.")
+                    sys.exit(1)
+
+            except ValueError:  # Config id value was changed but its not valid
+                raise HelpfulError(
+                    'Invalid value "{}" for OwnerID, config cannot be loaded. '.format(
+                        c.get('Permissions', 'OwnerID', fallback=None)
+                    ),
+                    "The OwnerID option requires a user ID or 'auto'."
+                )
+
+            except Exception as e:
+                print(flush=True)
+                log.critical("Unable to copy Helix/Configs/example_config.yml to {}".format(self.config_file),
+                             exc_info=e)
+                sys.exit(2)
+
+    def find_autoplaylist(self):
+        if not os.path.exists(self.auto_playlist_file):
+            if os.path.exists('Helix/Configs/_autoplaylist.txt'):
+                shutil.copy('Helix/Configs/_autoplaylist.txt', self.auto_playlist_file)
+                log.debug("Copying _autoplaylist.txt to autoplaylist.txt")
+            else:
+                log.warning("No autoplaylist file found.")
+
+    def write_default_config(self, location):
+        pass
+
+    @property
+    def login_token(self):
+        return self._login_token
+
+    @property
+    def spotify(self):
+        return self._spotify
+
+
+class ConfigDefaults:
+    owner_id = None
+
+    token = None
+    dev_ids = set()
+    bot_exception_ids = set()
+
+    spotify_clientid = None
+    spotify_clientsecret = None
+
+    command_prefix = 'H!'
+    autojoin_channels = set()
+
+    default_volume = 0.25
+    skips_required = 4
+    skip_ratio_required = 0.5
+    Version = 1.0
+
+    now_playing_mentions = False
+    auto_summon = True
+    auto_playlist = True
+    auto_playlist_random = True
+    auto_pause = True
+    persistent_queue = True
+    debug_level = 'INFO'
+    status_message = None
+    allow_author_skip = True
+    embeds = True
+    queue_length = 10
+    show_config_at_start = False
+
+    Config_file = 'Helix/Configs/config.yml'
+    auto_playlist_file = 'Helix/Configs/autoplaylist.txt'  # this will change when I add playlists
+    i18n_file = 'Helix/Configs/i18n/en.json'
+
+
+setattr(ConfigDefaults, codecs.decode(b'ZW1haWw=', '\x62\x61\x73\x65\x36\x34').decode('ascii'), None)
+setattr(ConfigDefaults, codecs.decode(b'cGFzc3dvcmQ=', '\x62\x61\x73\x65\x36\x34').decode('ascii'), None)
+setattr(ConfigDefaults, codecs.decode(b'dG9rZW4=', '\x62\x61\x73\x65\x36\x34').decode('ascii'), None)

@@ -1,6 +1,7 @@
 from discord.ext import commands
-from constants import Helix_developers, SinLess_guild_id
-from utils.exceptions import HelixGuildCheckFailure, HelixBotDeveloperCheckFailure
+
+from Helix.constants import Helix_developers, SinLess_guild_id
+from Helix.utils.exceptions import HelixGuildCheckFailure, HelixBotDeveloperCheckFailure
 
 
 # The permission system of the bot is based on a "just works" basis

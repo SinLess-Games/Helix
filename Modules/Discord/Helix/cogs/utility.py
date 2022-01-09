@@ -4,12 +4,16 @@ import discord
 from async_cse import Search
 from discord.ext import commands
 
-from api_client import StackAPI
-from utils.paginator import ListPaginator
-from constants import upvote_emoji_id, google_icon, stack_overflow_icon
+from Helix.api_client import StackAPI
+from Helix.constants import upvote_emoji_id, google_icon, stack_overflow_icon
+from Helix.utils.paginator import ListPaginator
 
 
 class Utility(commands.Cog):
+    """
+    Utilities for ease of use
+    """
+
     def __init__(self, bot):
         self.bot = bot
         self.utility_embed_color = 0x3498d

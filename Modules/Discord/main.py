@@ -1,16 +1,16 @@
-# This is a sample Python script.
+import os
+import threading
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from Helix.bot import Helix
 
 
-# Press the green button in the gutter to run the script.
+def main():
+    bot = Helix()
+    for filename in os.listdir('./Helix/cogs'):
+        if filename.endswith('.py'):
+            bot.load_extension(f'Helix.cogs.{filename[:-3]}')
+    bot.loop.run_until_complete(bot.run())
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    threading.Thread(target=main()).start()

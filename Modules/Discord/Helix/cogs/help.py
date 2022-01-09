@@ -1,14 +1,13 @@
-import discord
-import yaml
 import logging
-from discord.ext import commands
+
+import discord
 from discord.errors import Forbidden
-from constants import embed_space
-from utils.paginator import EmbedPaginator
-from utils.db_tools import ServerList
+from discord.ext import commands
 from sqlalchemy import *
 from sqlalchemy.orm import Session
 
+from Helix.utils.config import Config, ConfigDefaults
+from Helix.utils.db_tools import ServerList
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +47,21 @@ class Help(commands.Cog):
     Sends this help message
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, config_file=None):
         self.bot = bot
+        if config_file is None:
+            config_file = ConfigDefaults.Config_file
+        self.config = Config(config_file)
+
+    def _gen_embed(self):
+        """Provides a basic template for embeds"""
+        e = discord.Embed()
+        e.colour = 7506394
+        e.set_footer(text='SinLess-Games/Helix ({})'.format(self.config.version),
+                     icon_url='https://imgur.com/a/wdNvSfZ')
+        e.set_author(name=self.bot.user.name, url='https://github.com/sinLess-Games/Helix',
+                     icon_url=self.bot.user.avatar_url)
+        return e
 
     @commands.command()
     # @commands.bot_has_permissions(add_reactions=True,embed_links=True)
@@ -58,42 +70,31 @@ class Help(commands.Cog):
         Shows all modules of that bot
         """
 
-        with open("Configs/config.yml", 'r') as i:
-            cfg = yaml.safe_load(i)
-
         # !SET THOSE VARIABLES TO MAKE THE COG FUNCTIONAL!
-        version = cfg['Version']
-        host = cfg['SQL_Host']
-        user = cfg['SQL_UserName']
-        passwd = cfg['SQL_Password']
-        db = cfg['DefaultDatabase']
-        engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{db}', echo=False)
-        with Session(engine) as session:
+        version = self.config.version
+        host = self.config.sql_host
+        user = self.config.sql_user
+        passwd = self.config.sql_passwd
+        db = self.config.sql_ddb
+        Engine = create_engine(f'mysql+pymysql://{user}:{passwd}@{host}/{db}', echo=False)
+        with Session(Engine) as session:
             GuildData = session.query(ServerList).filter_by(ServerID=ctx.guild.id).first()
         # print(GuildData)
 
         prefix = GuildData.Prefix
         # print(f"prefix is {prefix}")
 
-        # setting owner name - if you don't wanna be mentioned remove line 49-60 and adjust help text (line 88)
-        owner = cfg['OWNER_NAME']
-        owner_name = cfg['OWNER_ID']
+        # setting owner name - if you don't want to be mentioned remove line 49-60 and adjust help text (line 88)
+        owner = self.config.owner
+        owner_id = self.config.owner_id
 
         valid_user = False
 
         # checks if cog parameter was given
         # if not: sending all modules and commands not associated with a cog
         if not input:
-            # checks if owner is on this server - used to 'tag' owner
-            try:
-                owner = ctx.guild.get_member(owner).mention
-
-            except AttributeError as e:
-                # starting to build embed
-                return
-            emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
-                                description=f'Use `{prefix}help <module>` to gain more information about that module '
-                                            f':smiley:\n')
+            # print('No input detected')
+            emb = self._gen_embed()
 
             # adding 'list' of cogs to embed
             emb.add_field(name='Modules', value="Below are the modules within HeliX", inline=False)
@@ -116,7 +117,7 @@ class Help(commands.Cog):
                 emb.add_field(name='Not belonging to a module', value=commands_desc, inline=False)
 
             # setting information about author
-            emb.add_field(name="About", value=f"Helix is developed by Sinless777#001 \n\
+            emb.add_field(name="About", value=f"Helix is developed by {owner} \n\
                                     This version of Helix is maintained by {owner}\n\
                                     Please visit https://github.com/SinLess-Games/Helix to submit ideas or bugs.")
             emb.set_footer(text=f"Bot is running on Version: {version}")
@@ -159,13 +160,14 @@ class Help(commands.Cog):
             emb = discord.Embed(title="It's a magical place.",
                                 description="I don't know how you got here. But I didn't see this coming at all.\n"
                                             "Would you please be so kind to report that issue to me on github?\n"
-                                            "https://github.com/nonchris/discord-fury/issues\n"
-                                            "Thank you! ~Chris",
+                                            "https://github.com/SinLess-Games/Helix \n"
+                                            "Thank you! ~Tim",
                                 color=discord.Color.red())
 
         # sending reply embed using our own function defined above
+        # print('sending embed')
         await send_embed(ctx, emb)
 
 
-def setup(client):
-    client.add_cog(Help(client))
+def setup(bot):
+    bot.add_cog(Help(bot))

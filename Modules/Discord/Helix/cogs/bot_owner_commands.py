@@ -3,14 +3,17 @@ from pathlib import Path
 
 from discord.ext import commands
 
-from utils.embed_handler import success, failure
-from utils.checks import Helix_bot_developer_only
-
+from Helix.utils.checks import Helix_bot_developer_only
+from Helix.utils.embed_handler import success, failure
 
 logger = logging.getLogger(__name__)
 
 
 class BotOwnerCommands(commands.Cog):
+    """
+    Commands for the bot owner
+    """
+
     def __init__(self, bot):
         self.bot = bot
 

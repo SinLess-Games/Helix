@@ -1,19 +1,23 @@
-import os
-import time
 import asyncio
+import os
 import random
+import time
 
-import psutil
 import discord
+import psutil
 from discord.ext import commands
 
-from utils.message_handler import RemovableMessage
-from utils.embed_handler import info, status_embed
-from utils.checks import check_if_it_is_Sinless_guild
-from constants import embed_space, Helix_paste_service_link
+from Helix.constants import embed_space, Helix_paste_service_link
+from Helix.utils.checks import check_if_it_is_Sinless_guild
+from Helix.utils.embed_handler import info
+from Helix.utils.message_handler import RemovableMessage
 
 
 class Miscellaneous(commands.Cog):
+    """
+    Miscellaneous Commands
+    """
+
     def __init__(self, bot):
         self.bot = bot
         self.process = psutil.Process(os.getpid())
@@ -91,7 +95,7 @@ class Miscellaneous(commands.Cog):
         bot_ram_usage_field = self.construct_load_bar_string(self.process.memory_percent(), bot_ram_usage)
 
         virtual_memory = psutil.virtual_memory()
-        server_ram_usage = f"{virtual_memory.used/1024/1024:.0f} MB"
+        server_ram_usage = f"{virtual_memory.used / 1024 / 1024:.0f} MB"
         server_ram_usage_field = self.construct_load_bar_string(virtual_memory.percent, server_ram_usage)
 
         cpu_count = psutil.cpu_count()
@@ -107,16 +111,16 @@ class Miscellaneous(commands.Cog):
         server_cpu_usage_field = self.construct_load_bar_string(server_cpu_usage)
 
         io_counters = self.process.io_counters()
-        io_read_bytes = f"{io_counters.read_bytes/1024/1024:.3f}MB"
-        io_write_bytes = f"{io_counters.write_bytes/1024/1024:.3f}MB"
+        io_read_bytes = f"{io_counters.read_bytes / 1024 / 1024:.3f}MB"
+        io_write_bytes = f"{io_counters.write_bytes / 1024 / 1024:.3f}MB"
 
         # The weird numbers is just guessing number of spaces so the lines align
         # Needed since embeds are not monospaced font
         field_content = (
-            f"**Bot RAM usage:**{embed_space*7}{bot_ram_usage_field}\n"
+            f"**Bot RAM usage:**{embed_space * 7}{bot_ram_usage_field}\n"
             f"**Server RAM usage:**{embed_space}{server_ram_usage_field}\n"
-            f"**Bot CPU usage:**{embed_space*9}{bot_cpu_usage_field}\n"
-            f"**Server CPU usage:**{embed_space*3}{server_cpu_usage_field}\n"
+            f"**Bot CPU usage:**{embed_space * 9}{bot_cpu_usage_field}\n"
+            f"**Server CPU usage:**{embed_space * 3}{server_cpu_usage_field}\n"
             f"**IO (r/w):** {io_read_bytes} / {io_write_bytes}\n"
         )
 
@@ -312,14 +316,6 @@ class Miscellaneous(commands.Cog):
         if len(choices):
             choice = random.choice(choices)
             await ctx.send(embed=info(f"🎰 | Random choice | **{choice.strip()}**", ctx.me, title=""))
-
-    @commands.command()
-    async def shuffle(self, ctx, *, args):
-        """Returns a shuffled sequence of given arguments"""
-        choices = [word.strip() for word in args.split(",")]
-        if len(choices):
-            random.shuffle(choices)
-            await ctx.send(embed=info(f"📃 | Random shuffle | **{', '.join(choices)}**", ctx.me, title=""))
 
 
 def setup(bot):
