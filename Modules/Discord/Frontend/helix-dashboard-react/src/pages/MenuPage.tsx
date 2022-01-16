@@ -1,0 +1,1 @@
+export const MenuPage = () => <div>Menu Page</div>;

@@ -534,7 +534,8 @@ class Task_Loop(commands.Cog):
                         }, synchronize_session="fetch")
                         session.commit()
                         session.close()
-                    if not UserExists and member.bot:
+                    BotExists = session.query(Bots).filter_by(UserID=member.id).first()
+                    if not BotExists and member.bot:
                         bot.UserID = member_id
                         bot.DisplayName = displayName.encode(encoding='UTF-8')
                         bot.Discriminator = discriminator.encode(encoding='UTF-8')
@@ -547,7 +548,7 @@ class Task_Loop(commands.Cog):
                         session.add(bot)
                         session.commit()
                         session.close()
-                    else:
+                    if BotExists and member.bot:
                         session.query(Bots).filter_by(UserID=member.id).update({
                             "DisplayName": displayName.encode(encoding='UTF-8'),
                             "Discriminator": discriminator.encode(encoding='UTF-8'),
