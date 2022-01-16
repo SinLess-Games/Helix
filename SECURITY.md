@@ -2,11 +2,12 @@
 
 ## Supported Versions
 
-1.x : this versioning is the cureent supported version.
+1.0.1 : this versioning is the cureent supported version.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.x     | :white_check_mark: |
+| 1.0     | ❌                |
+| 1.0.1   | ✅                |
 
 ## Reporting a Vulnerability
 
