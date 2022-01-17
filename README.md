@@ -1,5 +1,5 @@
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/Untitled.png)  
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/Untitled.png)  
 
 **Discription:**  
 Helix is meant to be a Machine Learning, Artificial Intellegence, Personal assitant. Is designed for useability and being easily customizable. Helix is meant the be the New generation of Virtual Assitant software, Making use of Multiple Modules which you can Supported
@@ -19,7 +19,7 @@ Helix makes use of:
 
 Helix will make use of these APIs to connect to multiple playforms and services to "Make Life Easy" in a connected world. 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/PL_Banner.png)
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/PL_Banner.png)
 **Programming Languages**      
  - MySQL (DataBase) (marcus/Tim)
  - Python (Tim)
@@ -32,14 +32,14 @@ Helix will make use of these APIs to connect to multiple playforms and services 
  - php (Marcus)
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/SL_Banner.png)   
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/SL_Banner.png)   
 **Supported Languages**  
 - English  
 - More in the future...  
 **(Need Native speaking Translators(Bi-lingual prefered))**
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/Integrations_Banner.png)  
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/Integrations_Banner.png)  
 **Integrations**  
 - Google
   - calender
@@ -63,7 +63,7 @@ Helix will make use of these APIs to connect to multiple playforms and services 
   - AI
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/WICD_Banner.png)  
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/WICD_Banner.png)  
 **What it can do**
 - Open apps
   - MODULE CUSTOM
@@ -77,7 +77,7 @@ Helix will make use of these APIs to connect to multiple playforms and services 
   - API
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/TECH_Banner.png)  
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/TECH_Banner.png)  
 **Technologies**
   - Speech Recognition
   - Speech Synthesis
@@ -85,7 +85,7 @@ Helix will make use of these APIs to connect to multiple playforms and services 
   - 
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/UI_Banner.png)  
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/UI_Banner.png)  
 **USER INTERFACE**
 - WEBBASED GUI
   - Helix Setting
@@ -106,14 +106,14 @@ Helix will make use of these APIs to connect to multiple playforms and services 
    - wake word
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/Packager_Banner.png)  
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/Packager_Banner.png)  
 **Packager**
 - will install all dependencies
 - liciense  key authorization
 - Instilation options
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/OS_Support_Banner.png)  
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/OS_Support_Banner.png)  
 **Os Support**
 - windows
 - (future) linux
@@ -121,14 +121,14 @@ Helix will make use of these APIs to connect to multiple playforms and services 
 - (possiblility) kubernetties (For High Availability)
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/DevNotes_Banner.png)   
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/DevNotes_Banner.png)   
 **DEV NOTES**
 - local client install W/ Simple("express") and Advanced Install Options.
 - depedency installed with client
 - Client Installer 
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/Credits_Banner.png)  
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/Credits_Banner.png)  
 **CREDITS**
 
 **Code BY:**  
@@ -144,7 +144,7 @@ Timothy Pierce
 (TBD)
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/Useful_Banner.png)  
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/Useful_Banner.png)  
 **Useful Info**
 
 **How to get on the donators List**  
@@ -168,7 +168,7 @@ Body:
 - Do you have a microphone
 
 # 
-# ![Alt Text](https://github.com/SinLess-Games-LimitedLC/Helix/blob/Master-branch/Documentation/img/Seeking_Banner.png) 
+# ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/Seeking_Banner.png) 
 
 **Seeking the perfect Voice for Helix**  
 
