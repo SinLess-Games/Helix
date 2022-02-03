@@ -47,7 +47,7 @@ gunicorn==20.1.0
 httplib2==0.19.1
 hupper==1.10.3
 idna==2.10
-ipython==7.24.1
+ipython==7.31.1
 ipython-genutils==0.2.0
 jedi==0.18.0
 joblib==1.0.1
