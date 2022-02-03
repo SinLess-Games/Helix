@@ -124,12 +124,12 @@ class TerminateSignal(Signal):
 
 class HelixGuildCheckFailure(CheckFailure):
     def __init__(self):
-        super().__init__(message="Can only be used in Tortoise guild.")
+        super().__init__(message="Can only be used in SinLess Games Official guild.")
 
 
 class HelixBotDeveloperCheckFailure(CheckFailure):
     def __init__(self):
-        super().__init__(message="Can only be used by Tortoise developers.")
+        super().__init__(message="Can only be used by Helix developers.")
 
 
 class EndpointResponse(Exception):

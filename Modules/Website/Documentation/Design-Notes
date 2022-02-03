@@ -1,0 +1,144 @@
+|###########################################################################################################|
+|#####                                        DESIGN NOTES                                              ####|
+|###########################################################################################################|
+|                                                                                                           |
+|                                             ** Pages **                                                   |
+|                                                                                                           |
+| - Home                                                                                                    |
+| - Login                                                                                                   |
+| - Register                                                                                                |
+| - Dashboard                                                                                               |
+| - Profile                                                                                                 |
+| - Account info                                                                                            |
+| - Security                                                                                                |
+| - Server list                                                                                             |
+| - Server Dashboard(displays name, sorts by id)                                                            |
+| - Support                                                                                                 |
+| - My Products                                                                                             |
+| - Store                                                                                                   |
+| - Cart                                                                                                    |
+| - Privacy Policy                                                                                          |
+| - Security Policy                                                                                         |
+| - Terms of use                                                                                            |
+| - Cookie Policy                                                                                           |
+| - User information Policy                                                                                 |
+|                                                                                                           |
+|                                      ** Page Hierarchy(routeing) **                                       |
+|                                                                                                           |
+| --Not logged-in--                                                                                         |
+| - Home(/)                                                                                                 |
+|    - Login(/login)                                                                                        |
+|       - Register(/register)                                                                               |
+|    - Policies(/policies)                                                                                  |
+|       - Privacy Policy(/policies/privacy-policy)                                                          |
+|       - Security Policy(/policies/security-policy)                                                        |
+|       - Terms of use(/policies/terms-of-use)                                                              |
+|       - Cookie Policy(/policies/cookie-policy)                                                            |
+|       - User information Policy(/policies/user-information-policy)                                        |
+|    - Wiki(/wiki)                                                                                          |
+|    - Store(/store)                                                                                        |
+|       - Cart(/store/cart)                                                                                 |
+|                                                                                                           |
+| --Logged-in--                                                                                             |
+| - DashBoard(/dashboard)[login restricted]                                                                 |
+|    - Server List(/dashboard/server-list)                                                                            |
+|       - Server DashBoard(/dashboard/server-list/dashboard/guildID={guildid})[displays name, sorts by id]            |
+|    -Profile(/profile)                                                                                     |
+|       - Account Information(/profile/account-info)                                                        |
+|       - My Products(/profile/my-products)                                                                 |
+|       - Account Security(/profile/account-security)                                                       |
+|       - Support(/support)                                                                                 |
+|    - Policies(/policies)                                                                                  |
+|       - Privacy Policy(/policies/privacy-policy)                                                          |
+|       - Security Policy(/policies/security-policy)                                                        |
+|       - Terms of use(/policies/terms-of-use)                                                              |
+|       - Cookie Policy(/policies/cookie-policy)                                                            |
+|       - User information Policy(/policies/user-information-policy)                                        |
+|    - Wiki(/wiki)                                                                                          |
+|    - Store(/store)                                                                                        |
+|       - Cart(/store/cart)                                                                                 |
+|                                                                                                           |
+|###########################################################################################################|
+|####                                PROGRAMMING LANGUAGE AND MODULES                                   ####|
+|###########################################################################################################|
+|                                                                                                           |
+|                                            ** LANGUAGE **                                                 |
+|                                                                                                           |
+|   - JavaScript(Node.js)                                                                                   |
+|   - MySQL                                                                                                 |
+|                                                                                                           |
+|                                          ** Modules **                                                    |
+|                                                                                                           |
+|   - react-router-dom  (https://v5.reactrouter.com/web/guides/quick-start)                                 |
+|   - sequelize  (https://sequelize.org/v7/manual/model-basics.html)                                        |
+|   - create-react-app  (https://create-react-app.dev/docs/getting-started/)                                |
+|   - congo-toast  (https://cogoport.github.io/cogo-toast/)                                                 |
+|   - react-credit-cards  (https://github.com/amaroteam/react-credit-cards)                                 |
+|   - react-big-calendar  (https://jquense.github.io/react-big-calendar/examples/index.html#api)            |
+|   - react-awesome-slider  (https://github.com/rcaferati/react-awesome-slider)                             |
+|   - billboard.js  (https://naver.github.io/billboard.js/release/latest/doc/)                              |
+|   - react-i18next  (https://react.i18next.com/)                                                           |
+|   - react-social-icons  (https://jaketrent.github.io/react-social-icons/)                                 |
+|   - react-pro-sidebar  (https://www.npmjs.com/package/react-pro-sidebar)                                  |
+|   - react-planet  (https://bestofreactjs.com/repo/innFactory-react-planet-react-menu)                     |
+|   - react-notifications-component                                                                         |
+|           (https://bestofreactjs.com/repo/teodosii-react-notifications-component-react-notification)      |
+|   - chakra-ui  (https://chakra-ui.com/docs/getting-started)                                               |
+|                                                                                                           |
+|###########################################################################################################|
+|####                                         DATABASE MODELS                                           ####|
+|###########################################################################################################|
+|                                                                                                           |
+| CREATE DATABASE Web_Permissions;                                                                          |
+|                                                                                                           |
+| CREATE TABLE Web_User (                                                                                   |
+|     ID BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT UNIQUE,                                                 |
+|     Real_Name VARCHAR(100),                                                                               |
+|     LogIn_ID VARCHAR(50),                                                                                 |
+|     Login_Password VARCHAR(200), (encrypt)                                                                |
+|     Security_Question_1 VARCHAR(50),                                                                      |
+|     Answer_1 VARCHAR(100),                                                                                |
+|     Security_Question_2 VARCHAR(50),                                                                      |
+|     Answer_2 VARCHAR(100),                                                                                |
+|     Security_Question_3 VARCHAR(50),                                                                      |
+|     Answer_3 VARCHAR(100),                                                                                |
+|     Email VARCHAR(100),                                                                                   |
+|     discord_name VARCHAR(100),                                                                            |
+|     discord_token VARCHAR(100),                                                                           |
+|     discord_Client_secret VARCHAR(100),                                                                   |
+|     liscene_key VARCHAR(24),                                                                              |
+|     Permission_Groups VARCHAR(100),                                                                       |
+|     Access_level BIGINT(10)                                                                               |
+| );                                                                                                        |
+|                                                                                                           |
+| CREATE TABLE Permission_Groups (                                                                          |
+|     ID BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT UNIQUE,                                                 |
+|     Group_Name VARCHAR(50) UNIQUE,                                                                        |
+|     Invited VARCHAR(5),                                                                                   |
+|     Invited_User_Group VARCHAR(5),                                                                        |
+|     Permissions BIGINT(20),                                                                               |
+|     User_Count BIGINT(5),                                                                                 |
+|     Active_Status VARCHAR(8),                                                                             |
+|     Used_Unused VARCHAR(6)                                                                                |
+| );                                                                                                        |
+|                                                                                                           |
+| CREATE TABLE Permissions (                                                                                |
+|     ID BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT UNIQUE,                                                 |
+|     Permission_Name VARCHAR(100),                                                                         |
+|     Access VARCHAR(100),                                                                                  |
+|     Users_With_Permission BIGINT(10),                                                                     |
+|     Used_Unused VARCHAR(6)                                                                                |
+| );                                                                                                        |
+|                                                                                                           |
+|###########################################################################################################|
+|####                                              NOTES                                                ####|
+|###########################################################################################################|
+|                                                                                                           |
+|------------------------------|------------------------------|---------------------------------------------|
+|  C.R.U.D                     |   REST                       |   G.P.P.D                                   |
+|------------------------------|------------------------------|---------------------------------------------|
+|  - Create                    |   - REpresentational         |   - Get                                     |
+|  - Read                      |   - State                    |   - Put                                     |
+|  - Update                    |   - Transfer                 |   - Post                                    |
+|  - Delete                    |                              |   - Delete                                  |
+|------------------------------|------------------------------|---------------------------------------------|
