@@ -6,7 +6,7 @@ from discord import Color
 AUDIO_CACHE_PATH = os.path.join(os.getcwd(), 'audio_cache')
 DISCORD_MSG_CHAR_LIMIT = 4000
 
-SinLess_guild_id = '765715864656936981'
+SinLess_guild_id = 765715864656936981
 website_url = ""
 privacy_url = ""
 rules_url = ""

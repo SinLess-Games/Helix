@@ -218,7 +218,7 @@ class Player(wavelink.Player):
     async def choose_track(self, ctx, tracks):
         def _check(r, u):
             return (
-                    r.emoji in OPTIONS.keys()
+                    r.emoji in OPTIONS.keys
                     and u == ctx.author
                     and r.message.id == msg.id
             )

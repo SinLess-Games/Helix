@@ -22,6 +22,8 @@ class ServerList(Base):
     MemberCount = Column(Integer)
     ChannelCount = Column(Integer)
     Prefix = Column(String(200), default='H!')
+    DefconThreshold = Column(Integer, default=7)
+    DefconEnabled = Column(BOOLEAN, default=False)
     WelcomeEnabled = Column(BOOLEAN, default=False)
     LeaveEnabled = Column(BOOLEAN, default=False)
     AutoModEnabled = Column(BOOLEAN, default=True)
