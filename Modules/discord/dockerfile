@@ -1,0 +1,33 @@
+# Helix AI discord Bot Dockerfile
+
+# base image
+FROM python:3.9.10
+
+# Maintainer name set
+MAINTAINER "SinLess Games LLC"
+
+# Args
+ARG Version
+
+# Work Directory
+WORKDIR /Discord
+
+# Copy Requirments text file
+COPY requirements.txt ./
+
+# open ports
+EXPOSE 3306:3306
+EXPOSE 443:443
+EXPOSE 2333:2333
+EXPOSE 50000-65535:50000-65535
+
+# Upgrade pip
+RUN apt-get update \
+  && pip install --no-cache-dir --upgrade pip \
+  && pip install -r requirements.txt
+
+#copy file directory
+COPY . .
+
+# start Docker image for discord bot docker build -t sinless777/helix_bot .
+CMD ["python", "main.py"]

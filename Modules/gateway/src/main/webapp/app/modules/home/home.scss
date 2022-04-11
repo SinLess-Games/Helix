@@ -1,0 +1,147 @@
+/* ==========================================================================
+Main page styles
+========================================================================== */
+
+
+/* ==========================================================================
+Imports and Variables
+========================================================================== */
+
+@import url(//db.onlinewebfonts.com/c/3cec094dc3567ba25c8022f17affc2a1?family=Precious);
+
+@font-face {font-family: "Precious";
+  src: url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.eot");
+  src: url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.eot?#iefix") format("embedded-opentype"),
+  url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.woff2") format("woff2"),
+  url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.woff") format("woff"),
+  url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.ttf") format("truetype"),
+  url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.svg#Precious") format("svg");
+}
+
+$color-1: black;
+$color-2: goldenrod;
+$color-3: silver;
+$color-4: gold;
+$logo: url('../../../content/images/logo_no_background.png');
+
+/* ==========================================================================
+Class Formatting
+========================================================================== */
+
+.hipster {
+  justify-content: flex-start;
+  display: flex;
+  width: 100%;
+  height: 350px;
+  background: url('../../../content/images/logo_no_background.png') no-repeat center center;
+  background-size: contain;
+}
+
+.keyboard {
+  justify-content: flex-start;
+  display: flex;
+  width: 100%;
+  height: 200px;
+  background: url('../../../content/images/keyboard.png') no-repeat center center;
+  background-size: contain;
+}
+
+.showcase {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding-top: 35px;
+  background: url('../../../content/images/galaxy_2.png') no-repeat center center;
+  border-bottom: 1.75px solid $color-2;
+  border-top: 1.75px solid $color-2;
+}
+
+.container {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.re {
+  justify-content: flex-start;
+  font-size: 1rem;
+  color: $color-3;
+}
+
+.moto {
+  justify-content: flex-start;
+  color: $color-3;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 1.5rem;
+}
+
+.p2 {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  font-family: serif;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.callToAction {
+  justify-content: flex-start;
+  display: flex;
+  width: auto;
+  height: 350px;
+  flex-direction: column;
+  font-family: serif;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.call2 {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  font-family: serif;
+  text-align: center;
+  font-size: 1rem;
+  padding-top: 5px;
+  border-color: $color-4;
+  color: $color-4;
+}
+
+/* ==========================================================================
+Tag Formatting
+========================================================================== */
+
+p {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  font-family: serif;
+  text-align: center;
+}
+
+h2 {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  padding-top: 80px;
+  color: $color-2;
+  align-content: center;
+  font-weight: bold;
+  font-family: Precious, serif;
+  font-size: 2.5rem;
+  text-shadow: 4px 4px 0px rgba(0,0,0,1);
+}
+
+img {
+  height: auto;
+  width: auto;
+}
+body {
+  background-color: $color-1;
+}
+
+
