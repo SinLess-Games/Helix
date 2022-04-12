@@ -1,0 +1,11 @@
+id;placed_date;status;code
+1;2022-04-11T19:17:33;Pending;Electronics
+2;2022-04-11T13:39:32;Recieved;payment PCI violet
+3;2022-04-12T00:08:25;PaymentUpdateRequired;background out-of-the-box withdrawal
+4;2022-04-11T04:11:26;Pending;Music real-time
+5;2022-04-11T12:15:35;PaymentUpdateRequired;Hat
+6;2022-04-12T01:00:23;Shipped;solid navigating
+7;2022-04-11T10:56:09;Shipped;Toys maroon
+8;2022-04-11T23:45:43;Recieved;Developer
+9;2022-04-11T07:14:07;Pending;Credit Soft Cotton
+10;2022-04-11T21:56:43;Complete;contingency Bedfordshire
