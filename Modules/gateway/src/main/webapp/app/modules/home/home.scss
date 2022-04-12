@@ -38,12 +38,16 @@ Class Formatting
 }
 
 .keyboard {
-  justify-content: flex-start;
+  justify-content: center;
   display: flex;
-  width: 100%;
+  width: 200px;
   height: 200px;
-  background: url('../../../content/images/keyboard.png') no-repeat center center;
   background-size: contain;
+  border: 3px solid $color-2;
+  border-radius: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: auto;
 }
 
 .showcase {
@@ -88,14 +92,13 @@ Class Formatting
 }
 
 .callToAction {
-  justify-content: flex-start;
-  display: flex;
   width: auto;
   height: 350px;
   flex-direction: column;
   font-family: serif;
   text-align: center;
   font-size: 1rem;
+  margin: auto;
 }
 
 .call2 {
@@ -108,6 +111,32 @@ Class Formatting
   padding-top: 5px;
   border-color: $color-4;
   color: $color-4;
+}
+
+/* create testimonial classes */
+.testimonial1 {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  font-family: serif;
+  text-align: center;
+  font-size: 1rem;
+  padding-top: 5px;
+  border: 1.75px solid $color-2;
+  margin: auto;
+}
+
+.carousel1 {
+  justify-content: flex-start;
+  display: flex;
+  width: auto;
+  height: 800px;
+  flex-direction: column;
+  font-family: serif;
+  text-align: center;
+  font-size: 1rem;
+  padding-top: 5px;
+  margin: auto;
 }
 
 /* ==========================================================================

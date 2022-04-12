@@ -1,1 +1,0 @@
-export const GuildDashboardPage = () => <div>Guild Dashboard Page</div>;

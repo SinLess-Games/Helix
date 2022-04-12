@@ -1,1 +1,0 @@
-export const GuildPrefixPage = () => <div>Guild Prefix Page</div>;

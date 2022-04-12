@@ -13,7 +13,7 @@ export const BrandIcon = props => (
 export const Brand = () => (
   <NavbarBrand tag={Link} to="/" className="brand-logo">
     <BrandIcon />
-    <span className="brand-title">  SinLess Games</span>
+    <span className="brand-title"> SinLess Games</span>
     <span className="navbar-version">{VERSION}</span>
   </NavbarBrand>
 );
@@ -25,4 +25,13 @@ export const Home = () => (
       <span>Home</span>
     </NavLink>
   </NavItem>
+);
+
+export const AboutUs = props => (
+    <NavItem>
+        <NavLink tag={Link} to="/about-us" className="d-flex align-items-center">
+            <FontAwesomeIcon icon="book" />
+            <span> About Us</span>
+        </NavLink>
+    </NavItem>
 );

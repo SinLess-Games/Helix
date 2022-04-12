@@ -1,0 +1,83 @@
+/* ==========================================================================
+About-Us page styles
+========================================================================== */
+@import url(//db.onlinewebfonts.com/c/3cec094dc3567ba25c8022f17affc2a1?family=Precious);
+
+@font-face {font-family: "Precious";
+  src: url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.eot");
+  src: url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.eot?#iefix") format("embedded-opentype"),
+  url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.woff2") format("woff2"),
+  url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.woff") format("woff"),
+  url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.ttf") format("truetype"),
+  url("//db.onlinewebfonts.com/t/3cec094dc3567ba25c8022f17affc2a1.svg#Precious") format("svg");
+}
+
+.logo {
+  justify-content: flex-start;
+  display: flex;
+  width: 100%;
+  background: url('../../../content/images/logo_no_background.png') no-repeat center center;
+  background-size: contain;
+}
+
+.titles {
+  align-content: center;
+  text-align: center;
+  padding-top: 50px;
+  padding-bottom: 0px;
+  color: silver;
+}
+
+.container {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.div {
+  justify-content: flex-start;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+p {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  font-family: serif;
+  text-align: center;
+}
+
+.p2 {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  font-family: serif;
+  text-align: center;
+  font-size: 1rem;
+}
+
+h2 {
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  color: goldenrod;
+  align-content: center;
+  font-weight: bold;
+  font-family: Precious, serif;
+  font-size: 2.5rem;
+  text-shadow: 4px 4px 0px rgba(0,0,0,1);
+}
+
+h1 {
+  padding-bottom: 20rem;
+  font-size: 2.5rem;
+}
+
+li {
+  font-weight: bold;
+}
