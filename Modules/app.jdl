@@ -1,0 +1,248 @@
+application {
+  config {
+    baseName gateway
+    applicationType gateway
+    packageName com.sinlessgamesllc
+    serviceDiscoveryType consul
+    authenticationType jwt
+    prodDatabaseType mysql
+    cacheProvider hazelcast
+    buildTool gradle
+    clientFramework react
+    nativeLanguage	en
+    testFrameworks [cypress, cucumber, gatling]
+    serverPort 8080
+    searchEngine elasticsearch
+    messageBroker kafka
+    devDatabaseType mysql
+    clientTheme darkly
+  }
+  entities *
+}
+
+application {
+  config {
+    baseName invoice
+    applicationType microservice
+    packageName com.sinlessgamesllc
+    serviceDiscoveryType consul
+    authenticationType jwt
+    prodDatabaseType mysql
+    buildTool gradle
+    testFrameworks [cypress, cucumber, gatling]
+    serverPort 8081
+    devDatabaseType mysql
+  }
+  entities Customer, Invoice,  ProductOrder, Shipment, OrderItem, Product, Deals
+}
+
+application {
+  config {
+    baseName notification
+    applicationType microservice
+    packageName com.sinlessgamesllc
+    serviceDiscoveryType consul
+    authenticationType jwt
+    prodDatabaseType mysql
+    buildTool gradle
+    nativeLanguage	en
+    testFrameworks [cypress, cucumber, gatling]
+    serverPort 8082
+    devDatabaseType mysql
+  }
+	entities Notification
+}
+
+/* Entities */
+
+entity Notification {
+	date Instant required
+    details String
+    sentDate Instant required
+    format NotificationType required
+    userId Long required
+    productId Long required
+}
+
+entity ApplicationUser {
+	firstName String required
+    lastName String required
+    gender Gender required
+    email String required pattern(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)
+    phone String required
+    adressLine1 String required
+    adressLine2 String
+    city String required
+    stateProvince String required
+    zipCode Integer required
+    country String required
+    discord Blob
+    google Blob
+    github Blob
+}
+
+entity Shipment {
+	trackingCode String
+    date Instant required
+    details String
+}
+
+entity Invoice {
+	date Instant required
+    details String
+    status InvoiceStatus required
+    paymentMethod PaymentMethod required
+    paymentDate Instant required
+    paymentAmount BigDecimal required
+    productOrderId Long required
+}
+
+entity Deals {
+	name String required
+    price BigDecimal required
+    description String required
+    image ImageBlob
+}
+
+entity ProductCategory {
+	name String required
+    description String
+}
+
+entity Customer {
+	firstName String required
+    lastName String required
+    gender Gender required
+    email String required pattern(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)
+    phone String required
+    adressLine1 String required
+    adressLine2 String
+    city String required
+    stateProvince String
+    zipCode Integer
+    country String required
+}
+
+entity OrderItem {
+	quantity Integer required min(0)
+    	totalPrice BigDecimal required min(0)
+    status OrderItemStatus required
+}
+
+entity Product {
+	name String required
+	description String required
+	price BigDecimal required min(0)
+	productSize Size
+	type Type required
+	image ImageBlob
+}
+
+entity ProductOrder {
+	placedDate Instant required
+    status OrderStatus required
+    code String required
+}
+
+/* Enums */
+
+enum NotificationType {
+	EMAIL,
+    SITE,
+    PARCEL,
+    SMS
+}
+
+enum InvoiceStatus {
+	ISSUED,
+    PAID,
+    CANCELLED
+}
+
+enum PaymentMethod {
+	Credit_Card,
+    Bank,
+    CASH_ON_DELIVERY,
+    PAYPAL,
+    SQUARE,
+    STRIPE
+}
+
+enum OrderItemStatus {
+	Available,
+    OUT_OF_STOCK,
+    BACK_ORDER,
+	NO_LONGER_AVAILABLE,
+	CANCELED
+}
+
+enum OrderStatus {
+	Pending,
+    Recieved,
+    Warehouse,
+    Packing,
+    Shipped,
+    Complete,
+    Canceled,
+    PaymentUpdateRequired
+}
+
+enum Size {
+    S,
+    M,
+    L,
+    XL,
+    XXL
+}
+
+enum Type {
+    Digital,
+    Physical
+}
+
+enum Gender {
+	Male,
+    Female,
+    CisGender,
+    Transgender,
+    NonBinary,
+    Genderqueer,
+    GenderFluid,
+    GenderNonConforming,
+    Agender,
+    Gendervoid,
+    Other
+}
+
+/* Relationships */
+
+relationship OneToOne {
+  ApplicationUser{internalUser} to User
+}
+
+relationship ManyToOne {
+	OrderItem{product} to Product
+    Deals{contents} to Product
+    OrderItem{deals} to Deals
+}
+
+relationship OneToMany {
+	Customer{order} to ProductOrder{Customer}
+    ProductOrder{orderItem} to OrderItem{order}
+    Invoice{shipment} to Shipment{invoice}
+    ProductCategory{product} to Product{ProductCategory}
+}
+
+/* service */
+
+service * with serviceClass
+service Invoice, Shipment with serviceClass
+
+/* pagination */
+
+paginate Product, Customer, ProductOrder, Invoice, Shipment, OrderItem with pagination
+
+/*microservice */
+
+microservice Notification with notification
+microservice Customer, Invoice,  ProductOrder, OrderItem, Shipment, Product, Deals with invoice
