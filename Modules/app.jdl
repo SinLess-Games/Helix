@@ -1,4 +1,3 @@
-
 application {
   config {
     baseName gateway
@@ -34,7 +33,7 @@ application {
     serverPort 8081
     devDatabaseType mysql
   }
-  entities Invoice, Shipment
+  entities Customer, Invoice,  ProductOrder, Shipment, OrderItem, Product, Deals
 }
 
 application {
@@ -54,29 +53,48 @@ application {
 	entities Notification
 }
 
-/* Entities for store service */
+/* Entities */
 
-/** Product sold by the Online store */
-entity Product {
-	name String required
-	description String required
-	price BigDecimal required min(0)
-	productSize Size
-	type Type required
-	image ImageBlob
+entity Notification {
+	date Instant required
+    details String
+    sentDate Instant required
+    format NotificationType required
+    userId Long required
+    productId Long required
 }
 
-enum Size {
-    S,
-    M,
-    L,
-    XL,
-    XXL
+entity ApplicationUser {
+	firstName String required
+    lastName String required
+    gender Gender required
+    email String required pattern(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)
+    phone String required
+    adressLine1 String required
+    adressLine2 String
+    city String required
+    stateProvince String required
+    zipCode Integer required
+    country String required
+    discord Blob
+    google Blob
+    github Blob
 }
 
-enum Type {
-    Digital,
-    Physical
+entity Shipment {
+	trackingCode String
+    date Instant required
+    details String
+}
+
+entity Invoice {
+	date Instant required
+    details String
+    status InvoiceStatus required
+    paymentMethod PaymentMethod required
+    paymentDate Instant required
+    paymentAmount BigDecimal required
+    productOrderId Long required
 }
 
 entity Deals {
@@ -105,18 +123,19 @@ entity Customer {
     country String required
 }
 
-enum Gender {
-	Male,
-    Female,
-    CisGender,
-    Transgender,
-    NonBinary,
-    Genderqueer,
-    GenderFluid,
-    GenderNonConforming,
-    Agender,
-    Gendervoid,
-    Other
+entity OrderItem {
+	quantity Integer required min(0)
+    	totalPrice BigDecimal required min(0)
+    status OrderItemStatus required
+}
+
+entity Product {
+	name String required
+	description String required
+	price BigDecimal required min(0)
+	productSize Size
+	type Type required
+	image ImageBlob
 }
 
 entity ProductOrder {
@@ -125,57 +144,13 @@ entity ProductOrder {
     code String required
 }
 
-enum OrderStatus {
-	Pending,
-    Recieved,
-    Warehouse,
-    Packing,
-    Shipped,
-    Complete,
-    Canceled,
-    PaymentUpdateRequired
-}
+/* Enums */
 
-entity OrderItem {
-	quantity Integer required min(0)
-    	totalPrice BigDecimal required min(0)
-    status OrderItemStatus required
-}
-
-enum OrderItemStatus {
-	Available,
-    OUT_OF_STOCK,
-    BACK_ORDER,
-	NO_LONGER_AVAILABLE
-}
-
-relationship OneToOne {
-	Customer{user} to User
-}
-
-relationship ManyToOne {
-	OrderItem{product} to Product
-    Deals{contents} to Product
-    OrderItem{deals} to Deals
-}
-
-relationship OneToMany {
-	Customer{order} to ProductOrder{Customer},
-    ProductOrder{orderItem} to OrderItem{order},
-    ProductOrder{invoice} to Invoice{order(code) required},
-    Invoice{shipment} to Shipment{invoice},
-    ProductCategory{product} to Product{ProductCategory}
-}
-
-/* Entities for Invoice Microservice */
-entity Invoice {
-	date Instant required
-    details String
-    status InvoiceStatus required
-    paymenMethod PaymentMethod required
-    paymentDate Instant required
-    paymentAmount BigDecimal required
-    productOrderId Long required
+enum NotificationType {
+	EMAIL,
+    SITE,
+    PARCEL,
+    SMS
 }
 
 enum InvoiceStatus {
@@ -193,38 +168,81 @@ enum PaymentMethod {
     STRIPE
 }
 
-entity Shipment {
-	trackingCode String
-    date Instant required
-    details String
+enum OrderItemStatus {
+	Available,
+    OUT_OF_STOCK,
+    BACK_ORDER,
+	NO_LONGER_AVAILABLE,
+	CANCELED
 }
 
-microservice Invoice, Shipment with invoice
-
-service Invoice, Shipment with serviceClass
-paginate Invoice, Shipment with pagination
-
-/* Entities for Notification Microservice */
-entity Notification {
-	date Instant required
-    details String
-    sentDate Instant required
-    format NotificationType required
-    userId Long required
-    productId Long required
+enum OrderStatus {
+	Pending,
+    Recieved,
+    Warehouse,
+    Packing,
+    Shipped,
+    Complete,
+    Canceled,
+    PaymentUpdateRequired
 }
 
-enum NotificationType {
-	EMAIL,
-    SITE,
-    PARCEL,
-    SMS
+enum Size {
+    S,
+    M,
+    L,
+    XL,
+    XXL
 }
 
-microservice Notification with notification
+enum Type {
+    Digital,
+    Physical
+}
 
-/* General options */
+enum Gender {
+	Male,
+    Female,
+    CisGender,
+    Transgender,
+    NonBinary,
+    Genderqueer,
+    GenderFluid,
+    GenderNonConforming,
+    Agender,
+    Gendervoid,
+    Other
+}
+
+/* Relationships */
+
+relationship OneToOne {
+  ApplicationUser{internalUser} to User
+}
+
+relationship ManyToOne {
+	OrderItem{product} to Product
+    Deals{contents} to Product
+    OrderItem{deals} to Deals
+}
+
+relationship OneToMany {
+	Customer{order} to ProductOrder{Customer}
+    ProductOrder{orderItem} to OrderItem{order}
+    Invoice{shipment} to Shipment{invoice}
+    ProductCategory{product} to Product{ProductCategory}
+}
+
+/* service */
 
 service * with serviceClass
+service Invoice, Shipment with serviceClass
+
+/* pagination */
+
 paginate Product, Customer, ProductOrder, Invoice, Shipment, OrderItem with pagination
 
+/*microservice */
+
+microservice Notification with notification
+microservice Customer, Invoice,  ProductOrder, OrderItem, Shipment, Product, Deals with invoice
