@@ -115,7 +115,7 @@ six==1.15.0
 slugify==0.0.1
 SoundFile==0.10.3.post1
 soupsieve==2.2
-SQLAlchemy==1.4.21
+SQLAlchemy==1.4.39
 sqlparse==0.4.2
 TagScriptEngine==2.3.0
 Tempita==0.5.2
