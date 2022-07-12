@@ -2,6 +2,7 @@
 # ![Alt Text](https://github.com/SinLess-Games/Helix/blob/master/Documentation/img/Untitled.png)  
 
 **Description:** 
+
 Helix is meant to be a Machine Learning, Artificial Intellegence, Personal assitant. Is designed for useability and being easily customizable. Helix is meant the be the New generation of Virtual Assitant software, Making use of Multiple Modules which you can Supported
 Helix will use a web based portal that requires a client with active liscence key to run on the end-user's computer. The Web Portal will be owned and hosted By SinLess Games LLC and Access Keys Sold Through SinLess Games.
 
@@ -16,6 +17,10 @@ Helix makes use of:
 
 **Screen Shots**  
 (TBD)
+
+```sh
+task 
+```
 
 Helix will make use of these APIs to connect to multiple playforms and services to "Make Life Easy" in a connected world. 
 # 
