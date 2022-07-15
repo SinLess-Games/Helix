@@ -57,7 +57,7 @@ lazyme==0.0.23
 librosa==0.8.0
 llvmlite==0.36.0
 lru-dict==1.1.7
-Markdown==3.3.3
+Markdown==3.4.1
 markovify==0.9.3
 mediapipe==0.8.6
 Menus==0.2.0
