@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir --upgrade pip
 # install py audio
 # install requirements.txt
 RUN apt-get install libasound-dev libportaudio2 libportaudiocpp0 portaudio19-dev -y
-Run pip install pyaudio
+RUN pip install pyaudio
 RUN pip install -r requirements.txt
 RUN apt-get install -y ffmpeg
 
@@ -31,5 +31,4 @@ RUN apt-get install -y ffmpeg
 COPY . .
 
 # start Docker image for discord bot docker build -t sinless777/helix_bot .
-CMD ["java", "-jar", "Lavalink.jar"]
 CMD ["python", "main.py"]
