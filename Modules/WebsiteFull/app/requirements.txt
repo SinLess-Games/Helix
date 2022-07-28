@@ -1,6 +1,6 @@
 Flask==2.1.2
 Flask-SQLAlchemy==2.5.1
-SQLAlchemy==1.4.36
+SQLAlchemy==1.4.39
 Flask-Migrate==3.1.0
 Flask-Script==2.0.6
 Flask-cors==3.0.10
