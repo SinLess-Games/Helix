@@ -363,7 +363,7 @@ class ConfigDefaults:
     queue_length = 10
     show_config_at_start = False
 
-    Config_file = 'Helix/Configs/config.yml'
+    Config_file = 'Helix/Configs/config.ini'
     auto_playlist_file = 'Helix/Configs/autoplaylist.txt'  # this will change when I add playlists
     i18n_file = 'Helix/Configs/i18n/en.json'
 

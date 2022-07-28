@@ -77,6 +77,9 @@ class Helix(commands.AutoShardedBot):
         self.sql_user = self.config.sql_user
         self.sql_passwd = self.config.sql_passwd
         self.sql_ddb = self.config.sql_ddb
+        self.db_connect = f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}'
+
+        print(self.db_connect)
 
         self.exit_signal = None
         self.init_ok = False
@@ -152,8 +155,7 @@ class Helix(commands.AutoShardedBot):
                 time.sleep(5)  # make sure they see the problem
 
         # SqlAlchemy engine construction
-        self.sql_engine = create_engine(
-            f'mysql+pymysql://{self.sql_user}:{self.sql_passwd}@{self.sql_host}/{self.sql_ddb}', echo=False)
+        self.sql_engine = create_engine( self.db_connect, echo=False)
         if not database_exists(self.sql_engine.url):
             create_database(self.sql_engine.url)
         else:
