@@ -74,7 +74,7 @@ parso==0.8.2
 PasteDeploy==2.1.1
 pathlib==1.0.1
 pickleshare==0.7.5
-Pillow==8.3.2
+Pillow==9.0.1
 pipenv==2022.1.8
 playsound==1.2.2
 pooch==1.3.0
