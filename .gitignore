@@ -665,7 +665,7 @@ FodyWeavers.xsd
 key1
 .ssh/known_hosts
 Modules/Discord/Helix/config.yaml
-Helix/Modules/Discord/Helix/config.yml
+Helix/Modules/Discord/Helix/config.ini
 
 Modules/Discord/Helix/config.yml
 Apps/Python/app2/bot/config.yml
