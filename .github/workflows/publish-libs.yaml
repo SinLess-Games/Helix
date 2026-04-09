@@ -56,7 +56,7 @@ jobs:
 
       - name: Derive base/head SHAs
         id: setSHAs
-        uses: nrwl/nx-set-shas@v4
+        uses: nrwl/nx-set-shas@v5
         with:
           gh-token: ${{ secrets.GITHUB_TOKEN }}
           main-branch-name: main
